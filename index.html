@@ -1,30 +1,517 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Website demo – GitHub Pages</title>
-  <link rel="stylesheet" href="assets/style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PHIẾU BÁO ĐƠN HÀNG – Nhôm thanh</title>
+  <style>
+    :root{ --bg:#fafbfd; --text:#0e1624; --muted:#718096; --line:#e6edf6; --radius:12px; --warn:#fffaf0; }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .wrap{max-width:1180px;margin:auto;padding:18px}
+    .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius)}
+    .inner{padding:16px}
+
+    .sheet-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+    .title{margin:0;font-weight:800;letter-spacing:.3px;font-size:22px}
+    .right-head{display:flex;gap:10px;align-items:center}
+    .field{display:flex;align-items:center;gap:6px}
+    .field label{font-size:12px;color:#2c5282}
+    .field input{padding:6px 10px;border:1px solid #d7e3f1;border-radius:10px;min-width:180px}
+    .date{color:#d97706;font-weight:700;white-space:nowrap}
+
+    .actions{display:flex;gap:8px;justify-content:flex-end;margin:6px 0 12px}
+    .btn{appearance:none;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+    .btn-plain{background:#eef6ff;border:1px solid #cfe2ff;color:#0b4a91}
+    .btn-primary{background:linear-gradient(135deg,#0b84ff,#2aa3ff);color:#fff}
+
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
+    table{width:100%;min-width:960px;border-collapse:separate;border-spacing:0}
+    thead th{position:sticky;top:0;background:#f3f8ff;color:#0b4a91;border-bottom:1px solid var(--line);font-weight:700;padding:8px}
+    td,th{border-right:1px solid var(--line)}
+    tr>*:last-child{border-right:0}
+    tbody td{background:#fff;border-bottom:1px solid var(--line);padding:6px}
+    tbody tr:nth-child(even) td{background:#fcfdff}
+    tfoot td{background:var(--warn);border-top:1.5px solid var(--line);padding:8px}
+
+    .center{text-align:center}
+    .right{text-align:right}
+    select,input{width:100%;padding:6px 8px;border:1px solid #d7e3f1;border-radius:8px;background:#fff}
+    .qty{max-width:80px}
+    .price{max-width:110px}
+
+    .foot{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:12px}
+    .totals{border:1px dashed #f2d5a6;background:var(--warn);border-radius:10px;padding:10px;min-width:280px}
+    .totals .row{display:flex;justify-content:space-between;padding:4px 0}
+    .totals .total{font-weight:800}
+
+    /* ===== PRINT (A4 landscape) ===== */
+    @page { size: A4 landscape; margin: 10mm; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+
+    .print-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:9999}
+    .print-sheet{width:297mm;min-height:210mm;background:#fff;color:#111;border:1px solid #dde3ea;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+    .print-body{padding:10mm}
+    .print-actions{display:flex;gap:8px;justify-content:flex-end;margin:8px 10mm 10px}
+    .print-actions button{padding:8px 12px;border-radius:8px;border:1px solid #cfd8e3;background:#f8fafc;cursor:pointer}
+    .print-actions .primary{background:#0b84ff;color:#fff;border-color:#0b84ff}
+    @media print{ .print-actions{display:none} .print-overlay{background:transparent} }
+
+    .p-header{display:grid;grid-template-columns:120px 1fr 120px;gap:8px;align-items:center}
+    .p-logo{height:64px;object-fit:contain}
+    .p-company{text-align:center;line-height:1.4}
+    .p-company h1{margin:0;font-size:22px;font-weight:800}
+    .p-company .addr,.p-company .phone{font-size:12.5px}
+    .p-title{margin:12px 0 6px;text-align:center;font-size:20px;font-weight:800}
+    .p-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}
+    .p-field{display:flex;gap:6px;align-items:baseline}
+    .p-label{min-width:90px;font-weight:600}
+    .p-date{grid-column:1 / -1;text-align:right;font-weight:700;color:#c0392b}
+
+    .p-table{width:100%;border-collapse:collapse;font-size:12px}
+    .p-table th,.p-table td{border:1px solid #333;padding:5px}
+    .p-center{text-align:center}
+    .p-right{text-align:right}
+    .p-head-1{background:#20b2ff;color:#002b49}
+    .p-head-2{background:#ffd24d}
+    .p-sub{background:#9ee1ff;color:#003a5f;font-weight:700}
+
+    .p-table tfoot td{background:#fff;border:1px solid #333;padding:6px}
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Xin chào 👋</h1>
-    <p>Đây là website demo chạy bằng <strong>GitHub Pages</strong>.</p>
-  </header>
+  <div class="wrap">
+    <div class="card">
+      <div class="inner">
+        <div class="sheet-head">
+          <h1 class="title">PHIẾU BÁO ĐƠN HÀNG</h1>
+          <div class="right-head">
+            <div class="field"><label for="customer">Khách hàng</label><input id="customer" placeholder="Tên khách"/></div>
+            <div class="field"><label for="phone">SĐT</label><input id="phone" placeholder="09xx xxx xxx"/></div>
+            <div class="date" id="today">—</div>
+          </div>
+        </div>
 
-  <main>
-    <section>
-      <h2>Nội dung</h2>
-      <p>Bạn có thể thay thế nội dung ở đây bằng website của bạn.</p>
-      <button id="btn">Nhấn thử</button>
-      <p id="out"></p>
-    </section>
-  </main>
+        <div class="actions">
+          <button class="btn btn-plain" id="addRowBtn" type="button">+ Thêm mã</button>
+          <button class="btn btn-plain" type="button" onclick="openPrint()">In phiếu</button>
+        </div>
 
-  <footer>
-    <small>© 2025 – Deploy lên GitHub Pages trong vài phút.</small>
-  </footer>
+        <div class="table-wrap" role="region" aria-label="Bảng nhập đơn hàng">
+          <table>
+            <thead>
+              <tr>
+                <th class="center" style="width:56px">STT</th>
+                <th style="width:150px">Hệ nhôm</th>
+                <th style="width:170px">Mã hàng</th>
+                <th>Tên hàng / Quy cách</th>
+                <th style="width:120px" class="center">Màu nhôm</th>
+                <th class="center" style="width:70px">ĐVT</th>
+                <th class="right" style="width:90px">Số lượng</th>
+                <th class="right" style="width:120px">Đơn giá</th>
+                <th class="right" style="width:130px">Thành tiền</th>
+                <th style="width:140px">Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody">
+              <tr>
+                <td class="center">1</td>
+                <td>
+                  <select name="sys_1" data-row="1" class="sys" required>
+                    <option value="">— Hệ —</option>
+                  </select>
+                </td>
+                <td>
+                  <select name="code_1" data-row="1" class="code" required>
+                    <option value="">— Mã hàng —</option>
+                  </select>
+                </td>
+                <td><input name="name_1" data-row="1" class="iname" placeholder="(Mô tả, quy cách)" style="min-width:260px"/></td>
+                <td class="center">
+                  <select name="color_1" data-row="1" class="icolor">
+                    <option value="">— Màu —</option>
+                  </select>
+                </td>
+                <td class="center">Thanh</td>
+                <td class="right"><input class="qty" type="number" min="0" name="qty_1" value="1" inputmode="decimal" autocomplete="off"/></td>
+                <td class="right"><input class="price" type="number" min="0" step="1" name="price_1" placeholder="178000" inputmode="decimal" autocomplete="off"/></td>
+                <td class="right"><span class="total" data-row="1">—</span></td>
+                <td><input name="note_1" placeholder="Ghi chú"/></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="9" class="right"><strong>TỔNG CỘNG</strong></td>
+                <td id="sum_subtotal"></td>
+              </tr>
+              <tr>
+                <td colspan="9" class="right">Chiết khấu</td>
+                <td id="sum_discount">0</td>
+              </tr>
+              <tr>
+                <td colspan="9" class="right"><strong>Tổng giá trị đơn hàng</strong></td>
+                <td id="sum_grand"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
 
-  <script src="assets/app.js"></script>
+        <div class="foot">
+          <button class="btn btn-primary">Lưu / Xuất PDF</button>
+          <div class="totals">
+            <div class="row"><span>Tạm tính</span><span id="card_subtotal">—</span></div>
+            <div class="row"><span>Giảm giá</span><span id="card_discount">0</span></div>
+            <div class="row total"><span>Tổng thanh toán</span><span id="card_grand">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PRINT OVERLAY ===== -->
+  <div id="printOverlay" class="print-overlay" aria-hidden="true">
+    <div class="print-sheet">
+      <div class="print-actions">
+        <button onclick="window.print()" class="primary">In</button>
+        <button onclick="closePrint()">Đóng</button>
+      </div>
+      <div class="print-body" id="printBody"></div>
+    </div>
+  </div>
+
+  <script>
+    // Ngày theo máy
+    (function(){
+      const el = document.getElementById('today');
+      if(!el) return;
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yyyy = d.getFullYear();
+      el.textContent = `Ngày ${dd} Tháng ${mm} Năm ${yyyy}`;
+    })();
+
+    const DATA_URL = 'data.json';
+    const norm = s => String(s ?? '').trim();
+    const opt  = (v,l) => { const o=document.createElement('option'); o.value=v; o.textContent=l; return o; };
+    const money= n => (Number(n)||0).toLocaleString('vi-VN');
+    function toNumber(v){
+      if (typeof v === 'number' && Number.isFinite(v)) return v;
+      const s = String(v ?? '')
+        .replace(/[^0-9.,-]/g,'')
+        .replace(/\s+/g,'')
+        .replace(/\.(?=\d{3}(\D|$))/g,'')
+        .replace(/,(?=\d{3}(\D|$))/g,'')
+        .replace(/,(?=\d)/g,'.')
+        .trim();
+      const n = Number(s);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function sanitizeInputNumber(el){ const n = toNumber(el.value); el.value = n ? String(n) : ''; }
+
+    function getRowParts(idx){
+      const sys   = document.querySelector(`select.sys[name="sys_${idx}"]`);
+      const code  = document.querySelector(`select.code[name="code_${idx}"]`);
+      const iname = document.querySelector(`input.iname[name="name_${idx}"]`);
+      const icolor= document.querySelector(`select.icolor[name="color_${idx}"]`);
+      const qty   = document.querySelector(`input.qty[name="qty_${idx}"]`);
+      const price = document.querySelector(`input.price[name="price_${idx}"]`);
+      const total = document.querySelector(`.total[data-row="${idx}"]`);
+      const tr    = sys ? sys.closest('tr') : null;
+      return { sys, code, iname, icolor, qty, price, total, tr };
+    }
+
+    let rows = [], bySystem = {};
+    function indexData(records){
+      bySystem = records.reduce((acc, r) => {
+        const k = norm(r['Hệ Nhôm'] ?? r['He Nhom'] ?? r['Hệ']);
+        if (!k) return acc;
+        (acc[k] = acc[k] || []).push(r);
+        return acc;
+      }, {});
+    }
+    function fillSystemSelects(){
+      const systems = Object.keys(bySystem).sort();
+      document.querySelectorAll('select.sys').forEach(sel=>{
+        if (sel.options.length > 1) return;
+        systems.forEach(s=> sel.appendChild(opt(s,s)));
+      });
+    }
+
+    function onSystemChange(idx){
+      const { sys, code, iname, icolor, total, tr } = getRowParts(idx);
+      if (!sys) return;
+      iname && (iname.value = '');
+      total && (total.textContent = '—');
+      if (tr){ tr.removeAttribute('data-kg'); tr.removeAttribute('data-total'); }
+
+      while (code.options.length) code.remove(0);
+      code.appendChild(opt('', '— Mã hàng —'));
+      while (icolor.options.length) icolor.remove(0);
+      icolor.appendChild(opt('', '— Màu —'));
+
+      const list = bySystem[norm(sys.value)] || [];
+      const seen = new Set();
+      list.forEach(r=>{
+        const m = norm(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang']);
+        if (!m || seen.has(m)) return; seen.add(m);
+        code.appendChild(opt(m, m));
+      });
+    }
+
+    function onCodeChange(idx){
+      const { sys, code, iname, icolor, tr, price } = getRowParts(idx);
+      const list = bySystem[norm(sys.value)] || [];
+      const sameCode = list.filter(r => norm(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang']) === norm(code.value));
+      if (!sameCode.length) return;
+
+      const first = sameCode[0];
+      const ten   = first['Tên Hàng hóa'] ?? first['Ten Hang hoa'] ?? first['Tên hàng'] ?? '';
+      const kg    = toNumber(first['Khối lượng (kg/thanh)'] ?? first['Khoi luong (kg/thanh)'] ?? first['Kg/thanh']);
+      if (iname) iname.value = ten;
+
+      while (icolor.options.length) icolor.remove(0);
+      const colors = [...new Set(sameCode.map(r => norm(r['Màu'] ?? r['Mau'])).filter(Boolean))];
+      icolor.appendChild(opt('', colors.length ? '— Chọn màu —' : '— Màu —'));
+      colors.forEach(c => icolor.appendChild(opt(c,c)));
+      if (colors.length === 1) icolor.value = colors[0];
+
+      if (tr) tr.setAttribute('data-kg', kg);
+
+      const priceByColor = sameCode.find(r => norm(r['Màu'] ?? r['Mau']) === norm(icolor.value));
+      const pAuto = toNumber((priceByColor||first)['Đơn giá'] ?? (priceByColor||first)['Don gia']);
+      if (price){ price.value = pAuto ? String(pAuto) : ''; sanitizeInputNumber(price); }
+
+      computeRowTotal(idx);
+    }
+
+    function onColorChange(idx){
+      const { sys, code, icolor, price } = getRowParts(idx);
+      const list = bySystem[norm(sys.value)] || [];
+      const row = list.find(r => norm(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang']) === norm(code.value)
+                               && norm(r['Màu'] ?? r['Mau']) === norm(icolor.value));
+      const p = toNumber(row && (row['Đơn giá'] ?? row['Don gia']));
+      if (price){ price.value = p ? String(p) : ''; sanitizeInputNumber(price); }
+      computeRowTotal(idx);
+    }
+
+    // Thành tiền = Kg/thanh × Đơn giá × Số lượng
+    function computeRowTotal(idx){
+      const { tr, qty, price, total } = getRowParts(idx);
+      if (!tr || !qty || !price || !total) return;
+      const kg = toNumber(tr.getAttribute('data-kg'));
+      const dongia = toNumber(price.value);
+      const sl = toNumber(qty.value || 1);
+      const tt = kg * dongia * sl;
+      total.textContent = (kg && dongia && sl) ? money(tt) : '—';
+      tr.setAttribute('data-total', String(tt));
+      recomputeSummary();
+    }
+
+    function wireRow(idx){
+      const { sys, code, price, icolor, qty } = getRowParts(idx);
+      sys    && sys.addEventListener('change', () => onSystemChange(idx));
+      code   && code.addEventListener('change', () => onCodeChange(idx));
+      icolor && icolor.addEventListener('change', () => onColorChange(idx));
+      price  && price.addEventListener('input',  () => { sanitizeInputNumber(price); computeRowTotal(idx); });
+      qty    && qty.addEventListener('input',    () => { sanitizeInputNumber(qty);   computeRowTotal(idx); });
+    }
+
+    function recomputeSummary(){
+      const subtotalEl = document.getElementById('sum_subtotal');
+      const discountEl = document.getElementById('sum_discount');
+      const grandEl    = document.getElementById('sum_grand');
+      const cSubtotal  = document.getElementById('card_subtotal');
+      const cDiscount  = document.getElementById('card_discount');
+      const cGrand     = document.getElementById('card_grand');
+
+      let subtotal = 0;
+      document.querySelectorAll('tbody tr').forEach(tr=>{
+        subtotal += toNumber(tr.getAttribute('data-total'));
+      });
+
+      const discount = toNumber(discountEl && discountEl.textContent);
+      const grand = Math.max(0, subtotal - discount);
+
+      [subtotalEl,cSubtotal].forEach(el=> el && (el.textContent = money(subtotal)));
+      [discountEl,cDiscount].forEach(el=> el && (el.textContent = money(discount)));
+      [grandEl,cGrand].forEach(el=> el && (el.textContent = money(grand)));
+    }
+
+    // Thêm dòng
+    (function(){
+      const body = document.getElementById('itemsBody');
+      const btn  = document.getElementById('addRowBtn');
+      if(!body || !btn) return;
+      btn.addEventListener('click', () => {
+        const idx = body.rows.length + 1;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="center">${idx}</td>
+          <td><select name="sys_${idx}" data-row="${idx}" class="sys" required><option value="">— Hệ —</option></select></td>
+          <td><select name="code_${idx}" data-row="${idx}" class="code" required><option value="">— Mã hàng —</option></select></td>
+          <td><input name="name_${idx}" data-row="${idx}" class="iname" placeholder="(Mô tả, quy cách)" style="min-width:260px"/></td>
+          <td class="center"><select name="color_${idx}" data-row="${idx}" class="icolor"><option value="">— Màu —</option></select></td>
+          <td class="center">Thanh</td>
+          <td class="right"><input class="qty" type="number" min="0" name="qty_${idx}" value="1" inputmode="decimal" autocomplete="off"/></td>
+          <td class="right"><input class="price" type="number" min="0" step="1" name="price_${idx}" placeholder="178000" inputmode="decimal" autocomplete="off"/></td>
+          <td class="right"><span class="total" data-row="${idx}">—</span></td>
+          <td><input name="note_${idx}" placeholder="Ghi chú"/></td>`;
+        body.appendChild(tr);
+        fillSystemSelects();
+        wireRow(idx);
+      });
+    })();
+
+    /* ====== PRINT CONFIG + RENDER (tfoot để thẳng cột) ====== */
+    const PRINT_CONFIG = {
+      logoLeft:  'https://via.placeholder.com/120x64?text=logo+left',
+      logoRight: 'https://kenwingroup.com/wp-content/uploads/2023/05/logo-1400x325.png',
+      companyName: 'HẢI HÀ HƯNG',
+      address: 'Địa chỉ: Quốc lộ 1A, Bình Hiệp, Thăng Bình, TP Đà Nẵng',
+      phones: 'Liên hệ: 0918210031 - 0994000698',
+      title: 'PHIẾU BÁO ĐƠN HÀNG'
+    };
+    const fm = n => (Number(n)||0).toLocaleString('vi-VN');
+    function buildDateString(){
+      const d = new Date(); const dd = String(d.getDate()).padStart(2,'0'); const mm = String(d.getMonth()+1).padStart(2,'0'); const yyyy = d.getFullYear();
+      return `Ngày ${dd} Tháng ${mm} Năm ${yyyy}`;
+    }
+
+    function openPrint(){
+      const customer = document.getElementById('customer')?.value || '';
+      const phone    = document.getElementById('phone')?.value || '';
+      const rowsPrint = [];
+      let totalKL = 0;
+      document.querySelectorAll('#itemsBody tr').forEach((tr, i) => {
+        const sys   = tr.querySelector('select.sys')?.value || '';
+        const code  = tr.querySelector('select.code')?.value || '';
+        const name  = tr.querySelector('input.iname')?.value || '';
+        const color = tr.querySelector('select.icolor')?.value || '';
+        const qty   = toNumber(tr.querySelector('input.qty')?.value || 0);
+        const price = toNumber(tr.querySelector('input.price')?.value || 0);
+        const kg    = toNumber(tr.getAttribute('data-kg') || 0);
+        if(!(sys||code||name)) return;
+        const tongKL = qty * kg;
+        totalKL += tongKL;
+        rowsPrint.push({
+          stt:i+1, sys, code, name, color, dvt:'Thanh',
+          qty, kgThanh:kg, tongKL, price, amount: kg*price*qty
+        });
+      });
+
+      const html = renderPrintHTML({
+        customer, phone, rows: rowsPrint,
+        dateText: buildDateString(),
+        sumKL: totalKL
+      });
+      const body = document.getElementById('printBody');
+      body.innerHTML = html;
+      document.getElementById('printOverlay').style.display = 'flex';
+    }
+    function closePrint(){ document.getElementById('printOverlay').style.display = 'none'; }
+
+    function renderPrintHTML({customer, phone, rows, dateText, sumKL}){
+      const subtotal = rows.reduce((s,r)=> s + (r.amount||0), 0);
+      return `
+        <div class="p-header">
+          <img class="p-logo" src="${PRINT_CONFIG.logoLeft}" alt="logo left"/>
+          <div class="p-company">
+            <h1>${PRINT_CONFIG.companyName}</h1>
+            <div class="addr">${PRINT_CONFIG.address}</div>
+            <div class="phone">${PRINT_CONFIG.phones}</div>
+          </div>
+          <img class="p-logo" src="${PRINT_CONFIG.logoRight}" alt="logo right"/>
+        </div>
+
+        <div class="p-title">${PRINT_CONFIG.title}</div>
+
+        <div class="p-meta">
+          <div class="p-field"><span class="p-label">Họ và Tên:</span><span>${customer || '........................................'}</span></div>
+          <div class="p-field"><span class="p-label">Số điện thoại:</span><span>${phone || '.......................'}</span></div>
+          <div class="p-date">${dateText}</div>
+        </div>
+
+        <table class="p-table">
+          <!-- khóa bề rộng cột để tfoot thẳng hàng -->
+          <colgroup>
+            <col style="width:30px">
+            <col style="width:90px">
+            <col style="width:120px">
+            <col> <!-- tên hàng -->
+            <col style="width:90px">
+            <col style="width:46px">
+            <col style="width:60px">
+            <col style="width:70px">
+            <col style="width:70px"> <!-- Tổng KL -->
+            <col style="width:110px">
+            <col style="width:120px">
+          </colgroup>
+
+          <thead>
+            <tr>
+              <th class="p-head-1 p-center" rowspan="2">STT</th>
+              <th class="p-head-1 p-center" rowspan="2">Hệ nhôm</th>
+              <th class="p-head-2 p-center" rowspan="2">Mã hàng</th>
+              <th class="p-head-1 p-center" colspan="1">TÊN HÀNG, QUY CÁCH</th>
+              <th class="p-head-1 p-center" rowspan="2">Màu Nhôm</th>
+              <th class="p-head-1 p-center" rowspan="2">ĐVT</th>
+              <th class="p-head-2 p-center" rowspan="2">Số lượng</th>
+              <th class="p-head-1 p-center" rowspan="2">Kg/thanh</th>
+              <th class="p-head-1 p-center" rowspan="2">Tổng KL</th>
+              <th class="p-head-1 p-center" rowspan="2">ĐƠN GIÁ<br/>(chưa bao gồm VAT)</th>
+              <th class="p-head-1 p-center" rowspan="2">THÀNH TIỀN</th>
+            </tr>
+            <tr><th class="p-sub p-center">PHẨM CHẤT</th></tr>
+          </thead>
+
+          <tbody>
+            ${rows.map(r=>`
+              <tr>
+                <td class="p-center">${r.stt}</td>
+                <td class="p-center">${r.sys}</td>
+                <td class="p-center">${r.code}</td>
+                <td>${r.name || ''}</td>
+                <td class="p-center">${r.color || ''}</td>
+                <td class="p-center">${r.dvt}</td>
+                <td class="p-right">${fm(r.qty)}</td>
+                <td class="p-right">${fm(r.kgThanh)}</td>
+                <td class="p-right">${fm(r.tongKL)}</td>
+                <td class="p-right">${fm(r.price)}</td>
+                <td class="p-right">${fm(r.amount)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+
+          <!-- TỔNG CỘNG trong cùng table => thẳng cột -->
+          <tfoot>
+            <tr>
+              <td colspan="6" class="p-center" style="font-weight:700">TỔNG CỘNG</td>
+              <td></td> <!-- Số lượng -->
+              <td></td> <!-- Kg/thanh -->
+              <td class="p-right" style="font-weight:700">${fm(sumKL)}</td> <!-- Tổng KL -->
+              <td></td> <!-- Đơn giá -->
+              <td class="p-right" style="font-weight:700">${fm(subtotal)}</td> <!-- Thành tiền -->
+            </tr>
+            <tr>
+              <td colspan="10" class="p-center" style="font-weight:700">Tổng Giá trị đơn hàng</td>
+              <td class="p-right" style="font-weight:700">${fm(subtotal)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+    }
+
+    // Boot
+    fetch(DATA_URL).then(r=>r.json()).then(json=>{
+      rows = Array.isArray(json) ? json : (json.Data || Object.values(json)[0] || []);
+      indexData(rows);
+      fillSystemSelects();
+      wireRow(1);
+    }).catch(err=>{
+      console.error('Không tải được data.json', err);
+      alert('Không tải được data.json. Hãy đặt file JSON cùng thư mục với trang.');
+    });
+  </script>
 </body>
 </html>
