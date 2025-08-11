@@ -40,15 +40,14 @@
     .qty{max-width:80px}
     .price{max-width:110px}
 
-    .foot{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:12px}
+    .foot{display:flex;justify-content:flex-end;margin-top:0px}
     .totals{border:1px dashed #f2d5a6;background:var(--warn);border-radius:10px;padding:10px;min-width:280px}
     .totals .row{display:flex;justify-content:space-between;padding:4px 0}
     .totals .total{font-weight:800}
 
-    /* ===== PRINT (A4 landscape) ===== */
+    /* PRINT overlay (giữ nút In phiếu) */
     @page { size: A4 landscape; margin: 10mm; }
     @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
-
     .print-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:9999}
     .print-sheet{width:297mm;min-height:210mm;background:#fff;color:#111;border:1px solid #dde3ea;box-shadow:0 10px 40px rgba(0,0,0,.2)}
     .print-body{padding:10mm}
@@ -57,25 +56,22 @@
     .print-actions .primary{background:#0b84ff;color:#fff;border-color:#0b84ff}
     @media print{ .print-actions{display:none} .print-overlay{background:transparent} }
 
-    .p-header{display:grid;grid-template-columns:120px 1fr 120px;gap:8px;align-items:center}
-    .p-logo{height:64px;object-fit:contain}
-    .p-company{text-align:center;line-height:1.4}
-    .p-company h1{margin:0;font-size:22px;font-weight:800}
-    .p-company .addr,.p-company .phone{font-size:12.5px}
-    .p-title{margin:12px 0 6px;text-align:center;font-size:20px;font-weight:800}
+    /* Header mẫu in */
+    .p-header{display:grid;grid-template-columns:220px 1fr 260px;align-items:center;gap:12px}
+    .p-logo-left{width:250px!important;height:300px!important;max-height:none!important;max-width:none!important;object-fit:contain;justify-self:start}
+    .p-logo-right{width:auto;height:70px;max-width:260px;object-fit:contain;justify-self:end}
+    @media print{.p-logo-left{height:90px!important}.p-logo-right{height:70px}}
+    .p-company{text-align:center;font-size:20px;font-weight:bold;line-height:1.4}
+    .p-company .addr,.p-company .phone{font-size:18px;font-weight:normal}
+    .p-title{text-align:center;font-size:22px;font-weight:bold;margin-top:0px}
     .p-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}
     .p-field{display:flex;gap:6px;align-items:baseline}
     .p-label{min-width:90px;font-weight:600}
     .p-date{grid-column:1 / -1;text-align:right;font-weight:700;color:#c0392b}
-
     .p-table{width:100%;border-collapse:collapse;font-size:12px}
     .p-table th,.p-table td{border:1px solid #333;padding:5px}
-    .p-center{text-align:center}
-    .p-right{text-align:right}
-    .p-head-1{background:#20b2ff;color:#002b49}
-    .p-head-2{background:#ffd24d}
-    .p-sub{background:#9ee1ff;color:#003a5f;font-weight:700}
-
+    .p-center{text-align:center}.p-right{text-align:right}
+    .p-head-1{background:#20b2ff;color:#002b49}.p-head-2{background:#ffd24d}.p-sub{background:#9ee1ff;color:#003a5f;font-weight:700}
     .p-table tfoot td{background:#fff;border:1px solid #333;padding:6px}
   </style>
 </head>
@@ -89,75 +85,74 @@
             <div class="field"><label for="customer">Khách hàng</label><input id="customer" placeholder="Tên khách"/></div>
             <div class="field"><label for="phone">SĐT</label><input id="phone" placeholder="09xx xxx xxx"/></div>
             <div class="date" id="today">—</div>
+            <button class="btn btn-plain" type="button" onclick="openPrint()">In phiếu</button>
           </div>
         </div>
 
         <div class="actions">
           <button class="btn btn-plain" id="addRowBtn" type="button">+ Thêm mã</button>
-          <button class="btn btn-plain" type="button" onclick="openPrint()">In phiếu</button>
         </div>
 
         <div class="table-wrap" role="region" aria-label="Bảng nhập đơn hàng">
           <table>
             <thead>
-              <tr>
-                <th class="center" style="width:56px">STT</th>
-                <th style="width:150px">Hệ nhôm</th>
-                <th style="width:170px">Mã hàng</th>
-                <th>Tên hàng / Quy cách</th>
-                <th style="width:120px" class="center">Màu nhôm</th>
-                <th class="center" style="width:70px">ĐVT</th>
-                <th class="right" style="width:90px">Số lượng</th>
-                <th class="right" style="width:120px">Đơn giá</th>
-                <th class="right" style="width:130px">Thành tiền</th>
-                <th style="width:140px">Ghi chú</th>
-              </tr>
+            <tr>
+              <th class="center" style="width:56px">STT</th>
+              <th style="width:150px">Hệ nhôm</th>
+              <th style="width:170px">Mã hàng</th>
+              <th>Tên hàng / Quy cách</th>
+              <th style="width:120px" class="center">Màu nhôm</th>
+              <th class="center" style="width:70px">ĐVT</th>
+              <th class="right" style="width:90px">Số lượng</th>
+              <th class="right" style="width:120px">Đơn giá</th>
+              <th class="right" style="width:130px">Thành tiền</th>
+              <th style="width:140px">Ghi chú</th>
+            </tr>
             </thead>
             <tbody id="itemsBody">
-              <tr>
-                <td class="center">1</td>
-                <td>
-                  <select name="sys_1" data-row="1" class="sys" required>
-                    <option value="">— Hệ —</option>
-                  </select>
-                </td>
-                <td>
-                  <select name="code_1" data-row="1" class="code" required>
-                    <option value="">— Mã hàng —</option>
-                  </select>
-                </td>
-                <td><input name="name_1" data-row="1" class="iname" placeholder="(Mô tả, quy cách)" style="min-width:260px"/></td>
-                <td class="center">
-                  <select name="color_1" data-row="1" class="icolor">
-                    <option value="">— Màu —</option>
-                  </select>
-                </td>
-                <td class="center">Thanh</td>
-                <td class="right"><input class="qty" type="number" min="0" name="qty_1" value="1" inputmode="decimal" autocomplete="off"/></td>
-                <td class="right"><input class="price" type="number" min="0" step="1" name="price_1" placeholder="178000" inputmode="decimal" autocomplete="off"/></td>
-                <td class="right"><span class="total" data-row="1">—</span></td>
-                <td><input name="note_1" placeholder="Ghi chú"/></td>
-              </tr>
+            <tr>
+              <td class="center">1</td>
+              <td>
+                <select name="sys_1" data-row="1" class="sys" required>
+                  <option value="">— Hệ —</option>
+                </select>
+              </td>
+              <td>
+                <select name="code_1" data-row="1" class="code" required>
+                  <option value="">— Mã hàng —</option>
+                </select>
+              </td>
+              <td><input name="name_1" data-row="1" class="iname" placeholder="(Mô tả, quy cách)" style="min-width:260px"/></td>
+              <td class="center">
+                <select name="color_1" data-row="1" class="icolor">
+                  <option value="">— Màu —</option>
+                </select>
+              </td>
+              <td class="center">Thanh</td>
+              <td class="right"><input class="qty" type="number" min="0" name="qty_1" value="1" inputmode="decimal" autocomplete="off"/></td>
+              <td class="right"><input class="price" type="number" min="0" step="1" name="price_1" placeholder="178000" inputmode="decimal" autocomplete="off"/></td>
+              <td class="right"><span class="total" data-row="1">—</span></td>
+              <td><input name="note_1" placeholder="Ghi chú"/></td>
+            </tr>
             </tbody>
             <tfoot>
-              <tr>
-                <td colspan="9" class="right"><strong>TỔNG CỘNG</strong></td>
-                <td id="sum_subtotal"></td>
-              </tr>
-              <tr>
-                <td colspan="9" class="right">Chiết khấu</td>
-                <td id="sum_discount">0</td>
-              </tr>
-              <tr>
-                <td colspan="9" class="right"><strong>Tổng giá trị đơn hàng</strong></td>
-                <td id="sum_grand"></td>
-              </tr>
+            <tr>
+              <td colspan="9" class="right"><strong>TỔNG CỘNG</strong></td>
+              <td id="sum_subtotal"></td>
+            </tr>
+            <tr>
+              <td colspan="9" class="right">Chiết khấu</td>
+              <td id="sum_discount">0</td>
+            </tr>
+            <tr>
+              <td colspan="9" class="right"><strong>Tổng giá trị đơn hàng</strong></td>
+              <td id="sum_grand"></td>
+            </tr>
             </tfoot>
           </table>
         </div>
 
         <div class="foot">
-          <button class="btn btn-primary">Lưu / Xuất PDF</button>
           <div class="totals">
             <div class="row"><span>Tạm tính</span><span id="card_subtotal">—</span></div>
             <div class="row"><span>Giảm giá</span><span id="card_discount">0</span></div>
@@ -168,11 +163,11 @@
     </div>
   </div>
 
-  <!-- ===== PRINT OVERLAY ===== -->
+  <!-- PRINT overlay -->
   <div id="printOverlay" class="print-overlay" aria-hidden="true">
     <div class="print-sheet">
       <div class="print-actions">
-        <button onclick="window.print()" class="primary">In</button>
+        <button onclick="window.print()">In phiếu</button>
         <button onclick="closePrint()">Đóng</button>
       </div>
       <div class="print-body" id="printBody"></div>
@@ -180,7 +175,7 @@
   </div>
 
   <script>
-    // Ngày theo máy
+    /* ======= Ngày theo máy ======= */
     (function(){
       const el = document.getElementById('today');
       if(!el) return;
@@ -192,31 +187,67 @@
     })();
 
     const DATA_URL = 'data.json';
-    const norm = s => String(s ?? '').trim();
-    const opt  = (v,l) => { const o=document.createElement('option'); o.value=v; o.textContent=l; return o; };
-    const money= n => (Number(n)||0).toLocaleString('vi-VN');
-    function toNumber(v){
-      if (typeof v === 'number' && Number.isFinite(v)) return v;
-      const s = String(v ?? '')
-        .replace(/[^0-9.,-]/g,'')
-        .replace(/\s+/g,'')
-        .replace(/\.(?=\d{3}(\D|$))/g,'')
-        .replace(/,(?=\d{3}(\D|$))/g,'')
-        .replace(/,(?=\d)/g,'.')
-        .trim();
-      const n = Number(s);
-      return Number.isFinite(n) ? n : 0;
+
+    /* ======= Parse số SIÊU CHẮC =======
+       - Xoá toàn bộ ký tự không phải số/chấm/phẩy/trừ
+       - Bỏ khoảng trắng/ dấu chấm ngăn nghìn
+       - Dấu phẩy thập phân -> chấm
+    */
+   function toNumber(v){
+    if (typeof v === 'number' && Number.isFinite(v)) return v;
+    const raw = String(v ?? '');
+    if (!raw) return 0;
+
+    // 1) chuẩn hoá về chỉ còn số, dấu . , -
+    let s = raw.replace(/[^\d.,-]/g, '').trim();
+
+    // 2) nếu có cả . và , -> coi kí tự xuất hiện SAU CÙNG là dấu thập phân,
+    //    còn lại là dấu ngăn nghìn => xoá
+    const lastDot = s.lastIndexOf('.');
+    const lastCom = s.lastIndexOf(',');
+    if (lastDot !== -1 && lastCom !== -1) {
+        const decIsComma = lastCom > lastDot;
+        if (decIsComma) {
+        s = s.replace(/\./g, '');   // xoá hết chấm ngăn nghìn
+        s = s.replace(/,/g, '.');    // phẩy cuối là thập phân -> đổi hết phẩy thành chấm
+        } else {
+        s = s.replace(/,/g, '');     // xoá hết phẩy ngăn nghìn
+        // giữ chấm cuối là thập phân (không cần đổi)
+        }
+    } else {
+        // chỉ có 1 loại kí tự phân cách:
+        // nếu có nhiều dấu . và không có , => . có thể là ngăn nghìn -> bỏ hết . rồi
+        // không đụng đến trường hợp thập phân thực sự vì dữ liệu kg thường <= 2 dấu
+        if (s.includes('.') && !s.includes(',')) {
+        // nếu dạng 178.000 hoặc 1.234.567 -> bỏ hết .
+        // còn dạng 7.2 vẫn ổn vì chỉ có 1 dấu .
+        if ((s.match(/\./g) || []).length > 1) s = s.replace(/\./g, '');
+        }
+        // nếu có , mà không có . => phẩy là thập phân -> đổi tất cả , -> .
+        if (s.includes(',') && !s.includes('.')) {
+        // nếu là 7,2 hoặc 7,201 -> thập phân
+        s = s.replace(/,/g, '.');
+        }
     }
+
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+}
+    const money = n => (Number(n)||0).toLocaleString('vi-VN');
+    const norm  = s => String(s ?? '').trim();
+    const opt   = (v,l) => { const o=document.createElement('option'); o.value=v; o.textContent=l; return o; };
+
     function sanitizeInputNumber(el){ const n = toNumber(el.value); el.value = n ? String(n) : ''; }
 
     function getRowParts(idx){
-      const sys   = document.querySelector(`select.sys[name="sys_${idx}"]`);
-      const code  = document.querySelector(`select.code[name="code_${idx}"]`);
-      const iname = document.querySelector(`input.iname[name="name_${idx}"]`);
-      const icolor= document.querySelector(`select.icolor[name="color_${idx}"]`);
-      const qty   = document.querySelector(`input.qty[name="qty_${idx}"]`);
-      const price = document.querySelector(`input.price[name="price_${idx}"]`);
-      const total = document.querySelector(`.total[data-row="${idx}"]`);
+      const q = sel => document.querySelector(sel);
+      const sys   = q(`select.sys[name="sys_${idx}"]`);
+      const code  = q(`select.code[name="code_${idx}"]`);
+      const iname = q(`input.iname[name="name_${idx}"]`);
+      const icolor= q(`select.icolor[name="color_${idx}"]`);
+      const qty   = q(`input.qty[name="qty_${idx}"]`);
+      const price = q(`input.price[name="price_${idx}"]`);
+      const total = q(`.total[data-row="${idx}"]`);
       const tr    = sys ? sys.closest('tr') : null;
       return { sys, code, iname, icolor, qty, price, total, tr };
     }
@@ -230,6 +261,7 @@
         return acc;
       }, {});
     }
+
     function fillSystemSelects(){
       const systems = Object.keys(bySystem).sort();
       document.querySelectorAll('select.sys').forEach(sel=>{
@@ -241,12 +273,14 @@
     function onSystemChange(idx){
       const { sys, code, iname, icolor, total, tr } = getRowParts(idx);
       if (!sys) return;
+
       iname && (iname.value = '');
       total && (total.textContent = '—');
       if (tr){ tr.removeAttribute('data-kg'); tr.removeAttribute('data-total'); }
 
       while (code.options.length) code.remove(0);
       code.appendChild(opt('', '— Mã hàng —'));
+
       while (icolor.options.length) icolor.remove(0);
       icolor.appendChild(opt('', '— Màu —'));
 
@@ -262,24 +296,26 @@
     function onCodeChange(idx){
       const { sys, code, iname, icolor, tr, price } = getRowParts(idx);
       const list = bySystem[norm(sys.value)] || [];
-      const sameCode = list.filter(r => norm(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang']) === norm(code.value));
-      if (!sameCode.length) return;
+      const variants = list.filter(r => norm(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang']) === norm(code.value));
+      if (!variants.length) return;
 
-      const first = sameCode[0];
-      const ten   = first['Tên Hàng hóa'] ?? first['Ten Hang hoa'] ?? first['Tên hàng'] ?? '';
+      const first = variants[0];
+      const name  = first['Tên Hàng hóa'] ?? first['Ten Hang hoa'] ?? first['Tên hàng'] ?? '';
       const kg    = toNumber(first['Khối lượng (kg/thanh)'] ?? first['Khoi luong (kg/thanh)'] ?? first['Kg/thanh']);
-      if (iname) iname.value = ten;
 
+      if (iname) iname.value = name;
+      if (tr) tr.setAttribute('data-kg', kg);
+
+      // Fill màu
       while (icolor.options.length) icolor.remove(0);
-      const colors = [...new Set(sameCode.map(r => norm(r['Màu'] ?? r['Mau'])).filter(Boolean))];
+      const colors = [...new Set(variants.map(r => norm(r['Màu'] ?? r['Mau'])).filter(Boolean))];
       icolor.appendChild(opt('', colors.length ? '— Chọn màu —' : '— Màu —'));
       colors.forEach(c => icolor.appendChild(opt(c,c)));
       if (colors.length === 1) icolor.value = colors[0];
 
-      if (tr) tr.setAttribute('data-kg', kg);
-
-      const priceByColor = sameCode.find(r => norm(r['Màu'] ?? r['Mau']) === norm(icolor.value));
-      const pAuto = toNumber((priceByColor||first)['Đơn giá'] ?? (priceByColor||first)['Don gia']);
+      // Lấy đơn giá theo màu (nếu có), fallback bản đầu
+      const byColor = variants.find(r => norm(r['Màu'] ?? r['Mau']) === norm(icolor.value)) || first;
+      const pAuto = toNumber(byColor['Đơn giá'] ?? byColor['Don gia']);
       if (price){ price.value = pAuto ? String(pAuto) : ''; sanitizeInputNumber(price); }
 
       computeRowTotal(idx);
@@ -289,7 +325,7 @@
       const { sys, code, icolor, price } = getRowParts(idx);
       const list = bySystem[norm(sys.value)] || [];
       const row = list.find(r => norm(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang']) === norm(code.value)
-                               && norm(r['Màu'] ?? r['Mau']) === norm(icolor.value));
+                              && norm(r['Màu'] ?? r['Mau']) === norm(icolor.value));
       const p = toNumber(row && (row['Đơn giá'] ?? row['Don gia']));
       if (price){ price.value = p ? String(p) : ''; sanitizeInputNumber(price); }
       computeRowTotal(idx);
@@ -302,7 +338,7 @@
       const kg = toNumber(tr.getAttribute('data-kg'));
       const dongia = toNumber(price.value);
       const sl = toNumber(qty.value || 1);
-      const tt = kg * dongia * sl;
+      const tt = Math.round(kg * dongia * sl);  // làm tròn VND
       total.textContent = (kg && dongia && sl) ? money(tt) : '—';
       tr.setAttribute('data-total', String(tt));
       recomputeSummary();
@@ -363,9 +399,9 @@
       });
     })();
 
-    /* ====== PRINT CONFIG + RENDER (tfoot để thẳng cột) ====== */
+    /* ====== PRINT (giữ nguyên) ====== */
     const PRINT_CONFIG = {
-      logoLeft:  'https://via.placeholder.com/120x64?text=logo+left',
+      logoLeft:  'https://lh3.googleusercontent.com/pw/AP1GczNT9skAXrKYuyggPxcvxKcXWXaa_vQQ71X9e6vSTq2C2pxS_W9pj-jhtw9q8c9YQLrjS0DZUxiqXzxDoWxpMgDiimPuicHSsXgRJQW3Ag-Y2UrZGxfsQj3Jc2rsJM5rQU6Xag8O_WBTiajJdj8zT28=w633-h633-s-no-gm',
       logoRight: 'https://kenwingroup.com/wp-content/uploads/2023/05/logo-1400x325.png',
       companyName: 'HẢI HÀ HƯNG',
       address: 'Địa chỉ: Quốc lộ 1A, Bình Hiệp, Thăng Bình, TP Đà Nẵng',
@@ -377,7 +413,6 @@
       const d = new Date(); const dd = String(d.getDate()).padStart(2,'0'); const mm = String(d.getMonth()+1).padStart(2,'0'); const yyyy = d.getFullYear();
       return `Ngày ${dd} Tháng ${mm} Năm ${yyyy}`;
     }
-
     function openPrint(){
       const customer = document.getElementById('customer')?.value || '';
       const phone    = document.getElementById('phone')?.value || '';
@@ -396,7 +431,7 @@
         totalKL += tongKL;
         rowsPrint.push({
           stt:i+1, sys, code, name, color, dvt:'Thanh',
-          qty, kgThanh:kg, tongKL, price, amount: kg*price*qty
+          qty, kgThanh:kg, tongKL, price, amount: Math.round(kg*price*qty)
         });
       });
 
@@ -405,8 +440,7 @@
         dateText: buildDateString(),
         sumKL: totalKL
       });
-      const body = document.getElementById('printBody');
-      body.innerHTML = html;
+      document.getElementById('printBody').innerHTML = html;
       document.getElementById('printOverlay').style.display = 'flex';
     }
     function closePrint(){ document.getElementById('printOverlay').style.display = 'none'; }
@@ -415,13 +449,13 @@
       const subtotal = rows.reduce((s,r)=> s + (r.amount||0), 0);
       return `
         <div class="p-header">
-          <img class="p-logo" src="${PRINT_CONFIG.logoLeft}" alt="logo left"/>
+          <img class="p-logo-left"  src="${PRINT_CONFIG.logoLeft}"  alt="logo công ty"/>
           <div class="p-company">
             <h1>${PRINT_CONFIG.companyName}</h1>
             <div class="addr">${PRINT_CONFIG.address}</div>
             <div class="phone">${PRINT_CONFIG.phones}</div>
           </div>
-          <img class="p-logo" src="${PRINT_CONFIG.logoRight}" alt="logo right"/>
+          <img class="p-logo-right" src="${PRINT_CONFIG.logoRight}" alt="logo thương hiệu"/>
         </div>
 
         <div class="p-title">${PRINT_CONFIG.title}</div>
@@ -433,17 +467,16 @@
         </div>
 
         <table class="p-table">
-          <!-- khóa bề rộng cột để tfoot thẳng hàng -->
           <colgroup>
             <col style="width:30px">
             <col style="width:90px">
             <col style="width:120px">
-            <col> <!-- tên hàng -->
+            <col>
             <col style="width:90px">
             <col style="width:46px">
             <col style="width:60px">
             <col style="width:70px">
-            <col style="width:70px"> <!-- Tổng KL -->
+            <col style="width:70px">
             <col style="width:110px">
             <col style="width:120px">
           </colgroup>
@@ -483,15 +516,14 @@
             `).join('')}
           </tbody>
 
-          <!-- TỔNG CỘNG trong cùng table => thẳng cột -->
           <tfoot>
             <tr>
               <td colspan="6" class="p-center" style="font-weight:700">TỔNG CỘNG</td>
-              <td></td> <!-- Số lượng -->
-              <td></td> <!-- Kg/thanh -->
-              <td class="p-right" style="font-weight:700">${fm(sumKL)}</td> <!-- Tổng KL -->
-              <td></td> <!-- Đơn giá -->
-              <td class="p-right" style="font-weight:700">${fm(subtotal)}</td> <!-- Thành tiền -->
+              <td></td>
+              <td></td>
+              <td class="p-right" style="font-weight:700">${fm(sumKL)}</td>
+              <td></td>
+              <td class="p-right" style="font-weight:700">${fm(subtotal)}</td>
             </tr>
             <tr>
               <td colspan="10" class="p-center" style="font-weight:700">Tổng Giá trị đơn hàng</td>
