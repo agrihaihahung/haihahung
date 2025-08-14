@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>In phiếu đơn hàng</title>
+  <link rel="stylesheet" href="print.css" />
+</head>
+<body>
+  <div class="sheet">
+    <div class="controls no-print">
+      <button onclick="window.print()" class="primary">In</button>
+      <button onclick="history.back()">Quay lại</button>
+    </div>
+    <header class="p-header">
+      <img class="p-logo-left" src="logo-left.svg" alt="logo trái"/>
+      <div class="p-company">
+        <div class="name" id="cName">CÔNG TY TNHH KINH DOANH TỔNG HỢP HẢI HÀ HƯNG</div>
+        <div class="addr" id="cAddr">Đ/c: QL1A, Thôn Bình Hiệp, Xã Thăng Bình, TP Đà Nẵng</div>
+        <div class="phone" id="cPhone">ĐT: 0918210031 – Email: mailcv.30@gmail.com</div>
+      </div>
+      <img class="p-logo-right" src="logo-right.svg" alt="logo phải"/>
+    </header>
+
+    <h1 class="p-title">PHIẾU BÁO ĐƠN HÀNG</h1>
+
+    <section class="p-meta">
+      <div><span class="label">Khách hàng:</span> <span id="mCustomer"></span></div>
+      <div><span class="label">SĐT:</span> <span id="mPhone"></span></div>
+      <div class="date" id="mDate"></div>
+    </section>
+
+    <table class="p-table" id="pTable">
+      <thead>
+        <tr>
+          <th class="c">STT</th>
+          <th>Hệ nhôm</th>
+          <th>Mã hàng</th>
+          <th>Tên hàng / Quy cách</th>
+          <th class="c">Màu</th>
+          <th class="c">ĐVT</th>
+          <th class="r">Số lượng</th>
+          <th class="r">Kg/thanh</th>
+          <th class="r">Tổng KL</th>
+          <th class="r">Đơn giá</th>
+          <th class="r">Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody id="pBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="8" class="r b">TỔNG CỘNG</td>
+          <td class="r b" id="pTotalKg"></td>
+          <td></td>
+          <td class="r b" id="pSubtotal"></td>
+        </tr>
+        <tr>
+          <td colspan="10" class="r b">TỔNG THANH TOÁN</td>
+          <td class="r b" id="pGrand"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <script src="print.js"></script>
+</body>
+</html>

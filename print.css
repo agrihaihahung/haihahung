@@ -1,0 +1,21 @@
+@page { size: A4 landscape; margin: 5mm; }
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#111}
+.sheet{width:297mm;min-height:210mm;background:#fff}
+.no-print{display:flex;gap:8px;justify-content:flex-end;padding:8px;border-bottom:1px solid #ddd;background:#f8fafc}
+@media print{.no-print{display:none} body{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+.primary{background:#0b84ff;color:#fff;border:1px solid #0b84ff;padding:8px 12px;border-radius:6px;cursor:pointer}
+.p-header{display:grid;grid-template-columns:240px 1fr 220px;align-items:center;gap:10px;padding:10px 10mm 0}
+.p-logo-left,.p-logo-right{height:150px;object-fit:contain}
+.p-company{text-align:center}
+.p-company .name{font-size:25px;font-weight:800}
+.p-company .addr,.p-company .phone{font-size:18px}
+.p-title{text-align:center;font-size:22px;font-weight:800;margin:8px 0}
+.p-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 10mm 6px}
+.p-meta .label{font-weight:700}
+.p-meta .date{grid-column:1 / -1;text-align:right;color:#b91c1c;font-weight:700}
+.p-table{width:100%;border-collapse:collapse;font-size:17px}
+.p-table th,.p-table td{border:1px solid #333;padding:6px}
+.p-table thead th{background:#e6f2ff}
+.c{text-align:center}.r{text-align:right}.b{font-weight:700}
+
