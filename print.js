@@ -1,10 +1,5 @@
 const money = n => (Number(n)||0).toLocaleString('vi-VN');
-function loadPayload(){
-  try{
-    const raw = localStorage.getItem('order_print_payload');
-    return raw ? JSON.parse(raw) : null;
-  }catch(e){ return null; }
-}
+function loadPayload(){ try{ const raw = localStorage.getItem('order_print_payload'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; } }
 function render(){
   const d = loadPayload();
   if(!d){ document.body.innerHTML = '<div style="padding:20px">Không có dữ liệu in. Hãy quay lại trang đơn hàng.</div>'; return; }
@@ -33,7 +28,6 @@ function render(){
   document.getElementById('pTotalKg').textContent = money(totalKg);
   document.getElementById('pSubtotal').textContent = money(d.subtotal||0);
   document.getElementById('pDiscount').textContent = money(d.discount||0);
-  document.getElementById('pVAT').textContent = money(d.vat||0);
   document.getElementById('pGrand').textContent = money(d.grand||0);
 }
 document.addEventListener('DOMContentLoaded', render);

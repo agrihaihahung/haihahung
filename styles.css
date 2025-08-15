@@ -1,8 +1,4 @@
-/* Dark, modern app styles */ 
-:root{
-  --bg:#0b1220; --panel:#0f172a; --text:#e5e7eb; --muted:#9aa3b2; --line:#1f2a44;
-  --brand:#60a5fa; --brand-2:#38bdf8; --warn:#fcd34d; --danger:#f87171; --radius:14px;
-}
+:root{--bg:#0b1220;--panel:#0f172a;--text:#e5e7eb;--muted:#9aa3b2;--line:#1f2a44;--brand:#60a5fa;--brand-2:#38bdf8;--warn:#fcd34d;--danger:#f87171;--radius:14px}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#0c1a36 0%,transparent 60%),linear-gradient(180deg,#0b1220,#0d1525);color:var(--text);font:14px/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial}
@@ -12,8 +8,7 @@ body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#0c1a36 0%,tra
 .right-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .field{display:flex;align-items:center;gap:6px}
 .field label{font-size:12px;color:var(--muted)}
-.field input{padding:8px 10px;border:1px solid var(--line);background:#0b1325;color:var(--text);border-radius:10px;min-width:170px}
-.field.sm input{min-width:80px;text-align:right}
+.field input{padding:8px 10px;border:1px solid var(--line);background:#0b1325;color:#fff;border-radius:10px;min-width:170px}
 .date{color:var(--warn);font-weight:800;white-space:nowrap}
 .actions{position:sticky;top:8px;z-index:50;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin:6px 0 12px}
 .btn{appearance:none;border:none;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer;letter-spacing:.2px;transition:filter .15s}
@@ -31,13 +26,26 @@ tbody tr:nth-child(even) td{background:#0a1222}
 tfoot td{background:#0b1325;border-top:1.5px solid var(--line);padding:8px}
 .center{text-align:center}
 .right{text-align:right}
-select,input{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#0b1325;color:var(--text)}
+select,input{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#0b1325;color:#e5e7eb}
 .qty{max-width:90px}
 .price{max-width:120px}
 .del{min-width:80px}
 .foot{display:flex;justify-content:space-between;gap:12px;margin-top:8px;flex-wrap:wrap}
 .hint{color:var(--muted)}
-.totals{border:1px dashed #254063;background:#0b1325;border-radius:12px;padding:10px;min-width:280px}
-.totals .row{display:flex;justify-content:space-between;padding:4px 0}
+.totals{border:1px dashed #254063;background:#0b1325;border-radius:12px;padding:10px;min-width:320px}
+.totals .row{display:flex;justify-content:space-between;padding:6px 0;gap:10px;align-items:center}
 .totals .total{font-weight:900}
-@media (max-width: 680px){.wrap{padding:10px}.title{font-size:18px}.field input{min-width:140px}.qty{max-width:84px}.price{max-width:110px}.del{min-width:64px}thead th{font-size:12px}tbody td{padding:8px 6px}}
+.totals .input-row label{font-size:12px;color:var(--muted)}
+.totals .input-row input{max-width:160px;text-align:right}
+@media (max-width:680px){.wrap{padding:10px}.title{font-size:18px}thead th{font-size:12px}tbody td{padding:8px 6px}}
+
+/* === Qty buttons for mobile === */
+.qty-wrap{display:flex;align-items:center;gap:8px;justify-content:center}
+.btn-qty{appearance:none;border:none;background:#1e293b;color:#e5e7eb;border:1px solid var(--line);
+  width:36px;height:36px;border-radius:999px;font-size:18px;line-height:1;font-weight:900;cursor:pointer}
+.btn-qty:active{transform:scale(0.96)}
+.qty{max-width:90px;text-align:center}
+@media (pointer:coarse){
+  .btn-qty{width:44px;height:44px;font-size:22px}
+  .qty{max-width:110px}
+}

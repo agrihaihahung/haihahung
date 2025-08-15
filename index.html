@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+  <link rel="icon" type="image/png" href="logo.png">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PHIẾU BÁO ĐƠN HÀNG – Nhôm thanh</title>
+  <title>PHIẾU BÁO ĐƠN HÀNG</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -13,14 +14,13 @@
       <div class="right-head">
         <div class="field"><label for="customer">Khách hàng</label><input id="customer" placeholder="Tên khách"/></div>
         <div class="field"><label for="phone">SĐT</label><input id="phone" placeholder="09xx xxx xxx"/></div>
-        <div class="field sm"><label for="discount">CK %</label><input id="discount" type="number" min="0" max="99" step="0.5" value="0"/></div>
-        <div class="field sm"><label for="vat">VAT %</label><input id="vat" type="number" min="0" max="20" step="0.5" value="0"/></div>
         <div class="date" id="today">—</div>
       </div>
     </header>
 
     <div class="actions" role="toolbar" aria-label="Thao tác nhanh">
       <button class="btn btn-plain" id="addRowBtn" type="button">+ Thêm mã</button>
+      <button class="btn btn-plain" id="importBtn" type="button">Import</button>
       <button class="btn btn-plain" id="exportCsvBtn" type="button">Tải Excel (.csv)</button>
       <button class="btn btn-primary" id="printBtn" type="button">In / PDF</button>
     </div>
@@ -33,8 +33,6 @@
             <th style="width:150px">Hệ nhôm</th>
             <th style="width:170px">Mã hàng</th>
             <th>Tên hàng / Quy cách</th>
-            <th style="width:120px" class="center">Màu nhôm</th>
-            <th class="center" style="width:70px">ĐVT</th>
             <th class="right" style="width:90px">Số lượng</th>
             <th class="right" style="width:120px">Đơn giá</th>
             <th class="right" style="width:130px">Thành tiền</th>
@@ -44,22 +42,12 @@
         <tbody id="itemsBody"></tbody>
         <tfoot>
           <tr>
-            <td colspan="8" class="right"><strong>TỔNG CỘNG</strong></td>
+            <td colspan="6" class="right"><strong>TỔNG CỘNG</strong></td>
             <td id="sum_subtotal"></td>
             <td></td>
           </tr>
           <tr>
-            <td colspan="8" class="right">Chiết khấu</td>
-            <td id="sum_discount">0</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td colspan="8" class="right">VAT</td>
-            <td id="sum_vat">0</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td colspan="8" class="right"><strong>Tổng giá trị đơn hàng</strong></td>
+            <td colspan="6" class="right"><strong>Tổng giá trị đơn hàng</strong></td>
             <td id="sum_grand"></td>
             <td></td>
           </tr>
@@ -71,9 +59,11 @@
       <div class="hint">Mẹo: gõ <b>Enter</b> ở ô Số lượng sẽ tự nhảy sang dòng mới. Trên điện thoại, kéo ngang bảng để xem đủ cột.</div>
       <div class="totals">
         <div class="row"><span>Tạm tính</span><span id="card_subtotal">—</span></div>
-        <div class="row"><span>Giảm giá</span><span id="card_discount">0</span></div>
-        <div class="row"><span>VAT</span><span id="card_vat">0</span></div>
         <div class="row total"><span>Tổng thanh toán</span><span id="card_grand">—</span></div>
+        <div class="row input-row">
+          <label for="discountAmount">Chiết khấu (VNĐ)</label>
+          <input id="discountAmount" type="number" min="0" step="1000" value="0"/>
+        </div>
       </div>
     </div>
   </div>
@@ -92,19 +82,15 @@
           <option value="">— Mã hàng —</option>
         </select>
       </td>
-      <td><input class="iname" placeholder="(Mô tả, quy cách)"/></td>
-      <td class="center">
-        <select class="icolor">
-          <option value="">— Màu —</option>
-        </select>
-      </td>
-      <td class="center unit">Thanh</td>
-      <td class="right"><input class="qty" type="number" min="0" value="1" inputmode="decimal" autocomplete="off"/></td>
+      <td><input class="iname" placeholder="(Mô tả, quy cách)"/><select class="icolor" style="display:none"></select><input class="unit" type="hidden" value="Thanh"/></td>
+      <td class="right"><div class="qty-wrap"><button type="button" class="btn-qty qty-dec" aria-label="Giảm">−</button><input class="qty" type="number" min="1" value="1" inputmode="decimal" autocomplete="off"/><button type="button" class="btn-qty qty-inc" aria-label="Tăng">+</button></div></td>
       <td class="right"><input class="price" type="number" min="0" step="1" placeholder="118000" inputmode="decimal" autocomplete="off"/></td>
       <td class="right"><span class="total">—</span></td>
       <td class="center"><button class="btn btn-danger btn-del" type="button">Xoá</button></td>
     </tr>
   </template>
+
+  <input type="file" id="importFile" accept=".csv,.json" hidden />
 
   <script src="app.js"></script>
 </body>
