@@ -20,6 +20,7 @@
 
     <div class="actions" role="toolbar" aria-label="Thao tác nhanh">
       <button class="btn btn-plain" id="addRowBtn" type="button">+ Thêm mã</button>
+      <button class="btn btn-plain" id="addAccessoryBtn" type="button">+ Thêm phụ kiện</button>
       <button class="btn btn-plain" id="importBtn" type="button">Import</button>
       <button class="btn btn-plain" id="exportCsvBtn" type="button">Tải Excel (.csv)</button>
       <button class="btn btn-primary" id="printBtn" type="button">In / PDF</button>
@@ -93,5 +94,26 @@
   <input type="file" id="importFile" accept=".csv,.json" hidden />
 
   <script src="app.js"></script>
+
+  <!-- Modal chọn phụ kiện -->
+  <dialog id="pkModal">
+    <form method="dialog" class="pk-box">
+      <header class="pk-head">
+        <div class="pk-title">Chọn phụ kiện</div>
+        <button type="button" id="pkClose" class="pk-close" aria-label="Đóng">✕</button>
+      </header>
+      <div class="pk-filter">
+        <label>Hệ:</label>
+        <select id="pkSystem"></select>
+        <input id="pkSearch" placeholder="Tìm nhanh phụ kiện..."/>
+      </div>
+      <div id="pkList" class="pk-list" role="listbox" aria-label="Danh sách phụ kiện"></div>
+      <footer class="pk-foot">
+        <button type="button" id="pkSelect" class="btn btn-primary">Thêm vào đơn</button>
+        <button value="cancel" class="btn btn-plain">Đóng</button>
+      </footer>
+    </form>
+  </dialog>
+
 </body>
 </html>

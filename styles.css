@@ -49,3 +49,53 @@ select,input{width:100%;padding:6px 8px;border:1px solid var(--line);border-radi
   .btn-qty{width:44px;height:44px;font-size:22px}
   .qty{max-width:110px}
 }
+
+
+/* --- Modal phụ kiện --- */
+#pkModal{border:none;border-radius:var(--radius);padding:0;background:#0b1325;color:var(--text);width:880px;max-width:94vw}
+#pkModal::backdrop{background:rgba(0,0,0,.55)}
+.pk-box{padding:12px}
+.pk-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pk-title{font-weight:900;font-size:18px}
+.pk-close{background:#1f2937;color:#cbd5e1;border:1px solid #334155;border-radius:10px;padding:6px 10px;cursor:pointer}
+.pk-filter{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.pk-filter select,.pk-filter input{padding:8px 10px;border:1px solid var(--line);background:#0b1325;color:#fff;border-radius:10px}
+.pk-list{max-height:55vh;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:6px;display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#0c1428}
+.pk-item{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #1f2a44;border-radius:10px;background:#0a1222}
+.pk-item label{flex:1}
+.pk-qty{width:80px;text-align:center}
+.pk-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+@media (max-width:640px){.pk-list{grid-template-columns:1fr}}
+
+
+
+.pk-item{gap:12px; align-items:center;}
+.pk-item .pk-qty{
+  order:-1;             /* đưa về bên trái */
+  width:72px; min-width:72px;
+  text-align:center;
+}
+.pk-item label{order:0;}
+
+/* Checkbox to & nằm bên phải */
+.pk-item .pk-check{
+  order:1;
+  width:24px; height:24px;
+  accent-color: var(--primary, #0ea5e9);
+  transform: scale(1.35);
+  transform-origin:center;
+  margin-left:4px;
+}
+@media (pointer:coarse){
+  .pk-item .pk-check{ transform: scale(1.55); }
+  .pk-item .pk-qty{ width:84px; min-width:84px; }
+}
+
+/* Modal phụ kiện - không nhập SL trong modal */
+.pk-item{display:flex;align-items:center;gap:12px}
+.pk-item label{flex:1}
+.pk-item .pk-check{
+  width:24px;height:24px;accent-color:var(--primary,#0ea5e9);
+  transform:scale(1.35);transform-origin:center
+}
+@media (pointer:coarse){ .pk-item .pk-check{transform:scale(1.55)} }

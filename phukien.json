@@ -1,0 +1,562 @@
+[
+  {
+    "system": "NHỰA",
+    "code": "GZN",
+    "name": "thanh nhựa ốp dài 4.8m\n(nhựa nguyên sinh nhập khẩu)",
+    "unit": "thanh",
+    "grp": "",
+    "price": 30000.0
+  },
+  {
+    "system": "NHỰA",
+    "code": "GZN2",
+    "name": "Thanh đa điểm nhựa dài 3m",
+    "unit": "thanh",
+    "grp": "",
+    "price": 35000.0
+  },
+  {
+    "system": "NHỰA",
+    "code": "gdd",
+    "name": "bịt đầu đố",
+    "unit": "cặp",
+    "grp": "",
+    "price": 7000.0
+  },
+  {
+    "system": "NHỰA",
+    "code": "gcc",
+    "name": "bịt chân cánh",
+    "unit": "cặp",
+    "grp": "",
+    "price": 6000.0
+  },
+  {
+    "system": "NHỰA",
+    "code": "GDD55",
+    "name": "Bịt đầu đố cửa đi xf,55",
+    "unit": "cặp",
+    "grp": "",
+    "price": 3000.0
+  },
+  {
+    "system": "NHỰA",
+    "code": "GCC55",
+    "name": "Bịt chân cánh xf,55",
+    "unit": "cặp",
+    "grp": "",
+    "price": 3000.0
+  },
+  {
+    "system": "RAY INOX",
+    "code": "GR1",
+    "name": "Ray inox dùng cho hệ xếp gấp (6m)",
+    "unit": "cây",
+    "grp": "",
+    "price": 170000.0
+  },
+  {
+    "system": "RAY INOX",
+    "code": "GR2",
+    "name": "Ray inox dùng cho hệ trượt slim 138 và cửa trượt anode (6m)",
+    "unit": "cây",
+    "grp": "",
+    "price": 158000.0
+  },
+  {
+    "system": "RAY INOX",
+    "code": "GR3",
+    "name": "Thanh nhôm bọc inox cửa trượt hệ thường (6m)",
+    "unit": "thanh",
+    "grp": "",
+    "price": 158000.0
+  },
+  {
+    "system": "RAY INOX",
+    "code": "GR4",
+    "name": "Ray inox trượt lật opk-6m",
+    "unit": "thanh",
+    "grp": "",
+    "price": 240000.0
+  },
+  {
+    "system": "Bánh xe",
+    "code": "GTB02",
+    "name": "Bánh xe loại 2 con lăn dùng cho cửa sổ,\n( dùng cho hệ ray 5mm - tải trọng 80kg)",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 58000.0
+  },
+  {
+    "system": "Bánh xe",
+    "code": "GTB03",
+    "name": "Bánh xe loại 2 con lăn dùng cho cửa đi\n( dùng cho hệ ray 5mm - tải trọng 110kg)",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 95000.0
+  },
+  {
+    "system": "Bánh xe",
+    "code": "GTB04",
+    "name": "Bánh xe loại 4 con lăn dùng cho cửa đi\n( dùng cho hệ ray 5mm-tải trọng 160kg)",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 174000.0
+  },
+  {
+    "system": "Bánh xe",
+    "code": "GTB04A",
+    "name": "Bánh xe loại 4 con lăn dùng cho cửa đi\n( dùng cho hệ ray 5mm - bx inox TT 300 kg )",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 545000.0
+  },
+  {
+    "system": "Bánh xe",
+    "code": "GTB05",
+    "name": "Bánh xe lùa 55 anode - dùng cho cửa sổ tải trọng 80 kg",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 58000.0
+  },
+  {
+    "system": "Bánh xe",
+    "code": "GTB06",
+    "name": "Bánh xe 4 con lăn hệ 55 bánh xe nhựa tải trọng 120kg/ cánh",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 155000.0
+  },
+  {
+    "system": "Bánh xe",
+    "code": "GTB01",
+    "name": "bánh xe chống rung cửa trượt",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 21000.0
+  },
+  {
+    "system": "Bánh xe",
+    "code": "GTB01A",
+    "name": "bánh xe dẫn hướng+chống nhấc cửa trượt",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 42000.0
+  },
+  {
+    "system": "KE TC",
+    "code": "KTC43",
+    "name": "Ke tăng cứng 43 ( bản 1,0 cm) - Dùng cho cửa trượt 55s",
+    "unit": "kg",
+    "grp": "",
+    "price": 70000.0
+  },
+  {
+    "system": "KE TC",
+    "code": "ktc41",
+    "name": "Ke tăng cứng anode T6 ( bản 1,5cm )",
+    "unit": "kg",
+    "grp": "",
+    "price": 80000.0
+  },
+  {
+    "system": "Cửa lùa",
+    "code": "GTD01B",
+    "name": "chốt sập cửa đi 1 mặt - bạc",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 169000.0
+  },
+  {
+    "system": "Cửa lùa",
+    "code": "KS-CT01",
+    "name": "Đầu nối biên cửa trượt rãnh C",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 25000.0
+  },
+  {
+    "system": "Cửa lùa",
+    "code": "KS-SG0003DX-63",
+    "name": "đầu nối T cửa sổ trượt , 55S trượt",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 34000.0
+  },
+  {
+    "system": "Cửa lùa",
+    "code": "KS-SG0003AX-63",
+    "name": "đầu nối T cửa đi trượt",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 34000.0
+  },
+  {
+    "system": "Cửa lùa",
+    "code": "GVT",
+    "name": "vấu chốt cửa trượt",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 23000.0
+  },
+  {
+    "system": "Cửa lùa",
+    "code": "GKT01",
+    "name": "Bộ khóa cửa trượt 01 ( thân khóa 2 móc,miệng khóa,lõi khóa 60mm,bộ chốt khóa âm)",
+    "unit": "bộ",
+    "grp": "",
+    "price": 762000.0
+  },
+  {
+    "system": "Cửa lùa",
+    "code": "GKT02",
+    "name": "Bộ khóa cửa trượt 02 ( thân khóa 2 móc,miệng khóa,lõi khóa 70mm,bộ nắp khóa,2 tay cầm)",
+    "unit": "bộ",
+    "grp": "",
+    "price": 1232000.0
+  },
+  {
+    "system": "Cửa lùa",
+    "code": "GTT01B",
+    "name": "Tay cầm cửa trượt - bạc",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 329000.0
+  },
+  {
+    "system": "Ke 55S",
+    "code": "KVC42K",
+    "name": "Ke vĩnh cửu Khung cửa đi mở quay Kenwin 55s (25x42) - 2 vít",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 7800.0
+  },
+  {
+    "system": "Ke 55S",
+    "code": "KVC4.0A",
+    "name": "Ke vĩnh cửu hệ 60 - khung cửa đi quay (31x40) - 2 vít\nKe vĩnh cửu Cánh cửa đi mở quay Kenwin 55s (31x40) - 2 vít",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 12500.0
+  },
+  {
+    "system": "Ke 55S",
+    "code": "KVC43",
+    "name": "Ke vĩnh cửu Khung cửa sổ mở quay Kenwin 55s (14x43) - 1 vít cân",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 5500.0
+  },
+  {
+    "system": "Ke 55S",
+    "code": "KVC4.05",
+    "name": "Ke vĩnh cửu hệ 60 - cánh cửa sổ quay (25x40.5) - 1 vít lệch\nKe vĩnh cửu Cánh cửa sổ mở quay Kenwin 55s (25x40.5) - 1 vít lệch",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 9400.0
+  },
+  {
+    "system": "Ke 55S",
+    "code": "KVC26",
+    "name": "Ke vĩnh cửu Khung cửa trượt Kenwin 55s (14x26) - 1 vít cân",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 4900.0
+  },
+  {
+    "system": "Ke 55S",
+    "code": "KVC27",
+    "name": "Ke vĩnh cửu Cánh cửa trượt Kenwin 55s (14x27) - 1 vít cân",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 5100.0
+  },
+  {
+    "system": "Ke 60",
+    "code": "KVC4.0",
+    "name": "Ke vĩnh cửu hệ 60 - khung cửa sổ quay (25x40) - 2 vít",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 10100.0
+  },
+  {
+    "system": "Ke 60",
+    "code": "KVC4.05",
+    "name": "Ke vĩnh cửu hệ 60 - cánh cửa sổ quay (25x40.5) - 1 vít lệch\nKe vĩnh cửu Cánh cửa sổ mở quay Kenwin 55s (25x40.5) - 1 vít lệch",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 9400.0
+  },
+  {
+    "system": "Ke 60",
+    "code": "KVC4.0A",
+    "name": "Ke vĩnh cửu hệ 60 - khung cửa đi quay (31x40) - 2 vít\nKe vĩnh cửu Cánh cửa đi mở quay Kenwin 55s (31x40) - 2 vít",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 12500.0
+  },
+  {
+    "system": "Ke 60",
+    "code": "KVCL4.05",
+    "name": "Ke vĩnh cửu hệ 60 - cánh cửa đi quay (31x40.5) - 1 vít lệch",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 11800.0
+  },
+  {
+    "system": "Ke 60",
+    "code": "KVC3.8",
+    "name": "Ke vĩnh cửu hệ 115+171 - khung cửa đi lùa (14x38)",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 6800.0
+  },
+  {
+    "system": "Ke 60",
+    "code": "KVCCT4.05",
+    "name": "Ke vĩnh cửu hệ 115+171 - cánh cửa đi lùa (31x40.5) - 1 vít chính tâm",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 11800.0
+  },
+  {
+    "system": "Ke 60",
+    "code": "KVC4.1",
+    "name": "Ke vĩnh cửu hệ 93 - khung cửa sổ lùa (14x41)",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 7700.0
+  },
+  {
+    "system": "Ke 60",
+    "code": "KVC3.05R",
+    "name": "Ke vĩnh cửu hệ 93 - cánh cửa sổ lùa sập rời (14x30.5)",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 6000.0
+  },
+  {
+    "system": "Ke T6",
+    "code": "KVC42N",
+    "name": "Ke vĩnh cửu Khung cửa đi mở quay 55 (31x42) anode bản Plus",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 9800.0
+  },
+  {
+    "system": "Ke T6",
+    "code": "KVC39N",
+    "name": "Ke vĩnh cửu Cánh cửa đi mở quay 55 (39 x 40) - 2 vít anode bản Plus",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 9700.0
+  },
+  {
+    "system": "Ke T6",
+    "code": "KVC42K",
+    "name": "Ke vĩnh cửu Khung cửa đi mở quay Kenwin 55s (25x42) - 2 vít",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 7800.0
+  },
+  {
+    "system": "Ke T6",
+    "code": "KVC42C",
+    "name": "Ke vĩnh cửu Cánh cửa sổ mở quay 55 anode (25x42) - 1 vít lệch như XF",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 9400.0
+  },
+  {
+    "system": "Ke T6",
+    "code": "KVC27",
+    "name": "Ke vĩnh cửu Cánh cửa trượt Kenwin 55s (14x27) - 1 vít cân",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 5100.0
+  },
+  {
+    "system": "Ke T6",
+    "code": "KVC3.2N",
+    "name": "Ke vĩnh cửu Cánh cửa trượt hệ 93 anode (25x32) - 1 vít cân",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 6300.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "gz36",
+    "name": "zoang lông 3*6 (250m)",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 295000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "GZ56",
+    "name": "zoang lông 5*6 (250m)",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 295000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "gz75",
+    "name": "zoang lông 7*5 ( 250m)",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 295000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "gz96-01",
+    "name": "Zoang lông 9*6 ( cửa trượt,slim138 ) - 250m",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 290000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "GZCS01",
+    "name": "zoang cánh cửa sổ trượt EPDM nhập khẩu (1 cuộn 10kg-EPF-577-3.2)",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 975000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "GR3",
+    "name": "Thanh nhôm bọc inox cửa trượt hệ thường (6m)",
+    "unit": "thanh",
+    "grp": "",
+    "price": 158000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "GTB01A",
+    "name": "bánh xe dẫn hướng+chống nhấc cửa trượt",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 42000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "GTB01",
+    "name": "bánh xe chống rung cửa trượt",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 21000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "GZN",
+    "name": "thanh nhựa ốp dài 4.8m\n(nhựa nguyên sinh nhập khẩu)",
+    "unit": "thanh",
+    "grp": "",
+    "price": 30000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "GTB02",
+    "name": "Bánh xe loại 2 con lăn dùng cho cửa sổ,\n( dùng cho hệ ray 5mm - tải trọng 80kg)",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 58000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "GTB06",
+    "name": "Bánh xe 4 con lăn hệ 55 bánh xe nhựa tải trọng 120kg/ cánh",
+    "unit": "Chiếc",
+    "grp": "",
+    "price": 155000.0
+  },
+  {
+    "system": "Phukien_55S",
+    "code": "KTC43",
+    "name": "Ke tăng cứng 43 ( bản 1,0 cm) - Dùng cho cửa trượt 55s",
+    "unit": "kg",
+    "grp": "",
+    "price": 70000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "GZDS01",
+    "name": "Zoang đệm sập EPDM nhập khẩu ( 1 cuộn 250m - EFB-3-4)",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 420000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "gzkq02s",
+    "name": "Zoang khung EPDM nhập khẩu\n( 1 cuộn 10kg )",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 975000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "GZKQ04A",
+    "name": "Zoang khung nhập khẩu EFK-76-3.8",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 1585000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "EPJ-103-16.2",
+    "name": "zoang che rãnh phụ kiện C (142m)",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 975000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "EFK-121-3.5",
+    "name": "Zoang khung bao viền ngoài Kogen - 1 cuộn 3kg",
+    "unit": "cuộn",
+    "grp": "",
+    "price": 460000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "GZN",
+    "name": "thanh nhựa ốp dài 4.8m\n(nhựa nguyên sinh nhập khẩu)",
+    "unit": "thanh",
+    "grp": "",
+    "price": 30000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "GTB03",
+    "name": "Bánh xe loại 2 con lăn dùng cho cửa đi\n( dùng cho hệ ray 5mm - tải trọng 110kg)",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 95000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "GTB04",
+    "name": "Bánh xe loại 4 con lăn dùng cho cửa đi\n( dùng cho hệ ray 5mm-tải trọng 160kg)",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 174000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "GTB01A",
+    "name": "bánh xe dẫn hướng+chống nhấc cửa trượt",
+    "unit": "chiếc",
+    "grp": "",
+    "price": 42000.0
+  },
+  {
+    "system": "Phukien_60",
+    "code": "KTC43",
+    "name": "Ke tăng cứng 43 ( bản 1,0 cm) - Dùng cho cửa trượt 55s",
+    "unit": "kg",
+    "grp": "",
+    "price": 70000.0
+  }
+]
