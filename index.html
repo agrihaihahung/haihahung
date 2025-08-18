@@ -21,7 +21,7 @@
     <div class="actions" role="toolbar" aria-label="Thao tác nhanh">
       <button class="btn btn-plain" id="addRowBtn" type="button">+ Thêm mã</button>
       <button class="btn btn-plain" id="addAccessoryBtn" type="button">+ Thêm phụ kiện</button>
-      <button class="btn btn-plain" id="importBtn" type="button">Import</button>
+      <button class="btn btn-plain" id="importBtn" type="button">Import ACT (.Xlxs)</button>
       <button class="btn btn-plain" id="exportCsvBtn" type="button">Tải Excel (.csv)</button>
       <button class="btn btn-primary" id="printBtn" type="button">In / PDF</button>
     </div>
@@ -91,8 +91,9 @@
     </tr>
   </template>
 
-  <input type="file" id="importFile" accept=".csv,.json" hidden />
+  <input type="file" id="importFile" accept=".xlsx,.csv,.json" hidden />
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <script src="app.js"></script>
 
   <!-- Modal chọn phụ kiện -->
