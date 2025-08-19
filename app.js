@@ -473,6 +473,14 @@ async function init(){
     });
   }
 
+  // Mở optimize.html khi bấm "Tối ưu cắt"
+  const optimizeBtn = document.getElementById('optimizeBtn');
+  if (optimizeBtn){
+    optimizeBtn.addEventListener('click', ()=>{
+      window.open('optimize/index.html','_blank');
+    });
+  }
+
   setupAccessoryUI();
   console.log("[init] App ready");
 }
