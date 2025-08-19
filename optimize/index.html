@@ -1,1 +1,73 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <link rel="icon" type="image/png" href="logo.png">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cắt nhôm & Tối ưu</title>
+  <link rel="stylesheet" href="./styles.optimize.css">
+</head>
+<body>
+  <header>
+    <h1>Khu vực tối ưu cắt</h1>
+    <div class="chips" id="chips"></div>
+  </header>
 
+  <div class="controls" role="region" aria-label="Cấu hình & chạy">
+    <div class="field"><span>Thanh chuẩn (mm)</span><input id="stockLength" type="number" value="5950" min="1000" step="1"></div>
+    <div class="field"><span>Lưỡi cắt (mm)</span><input id="kerf" type="number" value="3" min="0" step="1"></div>
+    <div class="field"><span>Mép đầu/đuôi (mm)</span><input id="trim" type="number" value="0" min="0" step="1"></div>
+    <div class="field"><span>Dư tối thiểu (mm)</span><input id="minLeft" type="number" value="0" min="0" step="1"></div>
+    <div class="field"><span>Thuật toán</span><select id="algo"><option value="FFD" selected>FFD (Nhanh)</option><option value="BFD">BFD (Thường tốt hơn)</option></select></div>
+    <div class="run">
+      <button class="btn btn-primary" id="btnRun">Chạy tối ưu</button>
+      <button class="btn" id="btnClear">Xoá hết</button>
+    </div>
+  </div>
+
+  <main id="content">
+    <section class="section" id="src">
+      <h2>Dữ liệu nguồn</h2>
+      <div class="src-actions">
+        <button class="btn" id="btnAddRow">+ Thêm dòng</button>
+        <button class="btn" id="btnPaste">Dán từ Excel</button>
+        <button class="btn" id="btnImportCsv">Import CSV</button>
+      </div>
+      <table class="src-table">
+        <thead><tr><th>Mã nhôm</th><th>Mô tả</th><th>Kích thước (mm)</th><th>Số lượng</th><th></th></tr></thead>
+        <tbody id="srcBody"></tbody>
+      </table>
+      <div class="warn" id="msg"></div>
+      <div class="note note-sheet" style="margin-top:6px">Mẹo: Thêm 1 dòng rồi Chọn một ô trong bảng rồi <b>Ctrl+V</b> để dán trực tiếp từ Excel/Google Sheets (cả khối).<br>Ô <i>Mã nhôm</i> trống sẽ tự lấp bằng giá trị của dòng trên.</div>
+    </section>
+
+    <section class="section" id="kq">
+      <h2>Kết quả</h2>
+      <div id="summaryCards" class="cards"></div>
+      <div id="results"></div>
+      <div class="total-line" id="grand"></div>
+    </section>
+  </main>
+
+  <!-- Auth Modal -->
+  <div id="authBackdrop" class="auth-backdrop" aria-hidden="false">
+    <form id="authForm" class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <h2 id="authTitle">Đăng nhập</h2>
+      <div class="auth-body">
+        <label>Tài khoản
+          <input id="authUser" type="text" autocomplete="username" placeholder="admin">
+        </label>
+        <label>Mật khẩu
+          <input id="authPass" type="password" autocomplete="current-password" placeholder="••••••">
+        </label>
+        <div class="auth-error" id="authErr" aria-live="polite"></div>
+      </div>
+      <div class="auth-actions">
+        <button id="authLogin" class="btn btn-primary" type="submit" onclick="window.__tryAuth && window.__tryAuth(); return false;">Đăng nhập</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="./app.optimize.js"></script>
+</body>
+</html>
