@@ -1,488 +1,205 @@
-// === APP.JS — full featured ===
+(() => {
+  'use strict';
+  const $ = (s, root = document) => root.querySelector(s);
+  const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+  const money = n => new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 }).format(Math.round(Number(n) || 0)) + ' ₫';
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const today = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const dateString = d => `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+  const state = { aluminum: [], accessories: [], catalog: [], accessoryCatalog: [], mode: 'aluminum', toastTimer: null, catalogLoaded: false };
+  const sampleAluminum = [
+    { code: 'KW-55S-001', name: 'Thanh khung bao Kenwin 55s', color: 'Ghi sần', spec: '1.4 mm · 6.0 m', qty: 30, unit: 'Thanh', price: 285000 },
+    { code: 'KW-55S-012', name: 'Thanh cánh cửa Kenwin 55s', color: 'Ghi sần', spec: '1.4 mm · 6.0 m', qty: 24, unit: 'Thanh', price: 312000 }
+  ];
+  const sampleAccessories = [{ code: 'PK-BN-001', name: 'Bản lề cửa nhôm', group: 'Phụ kiện cửa', qty: 12, unit: 'Bộ', price: 85000 }];
+  const fmtDateISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 
-// 1) Today label
-(function setToday(){
-  const el = document.getElementById('today');
-  if(!el) return;
-  const d = new Date();
-  el.textContent = `Ngày ${String(d.getDate()).padStart(2,'0')} Tháng ${String(d.getMonth()+1).padStart(2,'0')} Năm ${d.getFullYear()}`;
-  console.log("[init] Today label:", el.textContent);
+  function init() {
+    $('#todayLabel').textContent = new Intl.DateTimeFormat('vi-VN', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }).format(today);
+    $('#quoteDateDisplay').textContent = dateString(today);
+    $('#yearLabel').textContent = today.getFullYear();
+    $('#quoteCode').textContent = `BG-${String(today.getFullYear()).slice(-2)}${pad(today.getMonth()+1)}${pad(today.getDate())}-001`;
+    state.aluminum = [];
+    state.accessories = [];
+    renderRows(); calculate(); bindEvents(); loadCatalog();
+  }
+  function uid() { return Math.random().toString(36).slice(2, 10); }
+  function renderRows() {
+    $('#aluminumRows').innerHTML = state.aluminum.map((item, i) => `<tr data-id="${item.id}" data-kind="aluminum">
+      <td>${i+1}</td><td><span class="product-name">${escapeHtml(item.name || 'Sản phẩm nhôm')}</span><span class="product-code"><span class="code-tag">${escapeHtml(item.code || 'CHƯA CÓ MÃ')}</span></span></td>
+      <td><input class="cell-input color-input" data-field="color" aria-label="Màu sắc" value="${escapeHtml(item.color)}" /></td>
+      <td><input class="cell-input spec-input" data-field="spec" aria-label="Quy cách" value="${escapeHtml(item.spec)}" /></td>
+      <td class="align-right"><input class="cell-input qty-input" data-field="qty" type="number" min="0" step="any" aria-label="Số lượng" value="${Number(item.qty)||0}" /></td>
+      <td><span class="unit-cell">${escapeHtml(item.unit || 'Thanh')}</span></td>
+      <td class="align-right"><input class="cell-input price-input" data-field="price" type="number" min="0" step="100" aria-label="Đơn giá (VND/kg)" value="${Number(item.price)||0}" readonly title="Đơn giá lấy từ danh mục, không thể chỉnh sửa" /></td>
+      <td class="money-cell" data-total>${money((Number(item.qty)||0)*(Number(item.weight)||0)*(Number(item.price)||0))}</td><td><button class="delete-row" data-delete="${item.id}" title="Xóa dòng" aria-label="Xóa dòng">×</button></td></tr>`).join('');
+    $('#accessoryRows').innerHTML = state.accessories.map((item, i) => `<tr data-id="${item.id}" data-kind="accessory">
+      <td>${i+1}</td><td><span class="product-name">${escapeHtml(item.name || 'Phụ kiện')}</span><span class="product-code"><span class="code-tag">${escapeHtml(item.code || 'CHƯA CÓ MÃ')}</span></span></td>
+      <td><input class="cell-input" style="min-width:110px" data-field="group" aria-label="Nhóm phụ kiện" value="${escapeHtml(item.group || 'Phụ kiện cửa')}" /></td>
+      <td class="align-right"><input class="cell-input qty-input" data-field="qty" type="number" min="0" step="any" aria-label="Số lượng" value="${Number(item.qty)||0}" /></td><td><span class="unit-cell">${escapeHtml(item.unit || 'Cái')}</span></td>
+      <td class="align-right"><input class="cell-input price-input" data-field="price" type="number" min="0" step="100" aria-label="Đơn giá" value="${Number(item.price)||0}" /></td>
+      <td class="money-cell" data-total>${money((Number(item.qty)||0)*(Number(item.price)||0))}</td><td><button class="delete-row" data-delete="${item.id}" title="Xóa dòng" aria-label="Xóa dòng">×</button></td></tr>`).join('');
+    $('#aluminumCount').textContent = state.aluminum.length;
+    $('#accessoryCount').textContent = $('#includeAccessories').checked ? state.accessories.length : 0;
+    $('#lineCount').textContent = state.aluminum.length + ($('#includeAccessories').checked ? state.accessories.length : 0);
+    applyProductFilter();
+  }
+  function readTable(kind) {
+    const arr = kind === 'aluminum' ? state.aluminum : state.accessories;
+    $$(`tr[data-kind="${kind}"]`).forEach(tr => {
+      const item = arr.find(x => x.id === tr.dataset.id); if (!item) return;
+      $$('[data-field]', tr).forEach(input => { const key = input.dataset.field; item[key] = input.type === 'number' ? Math.max(0, Number(input.value)||0) : input.value; });
+      const total = tr.querySelector('[data-total]'); if (total) total.textContent = money(kind === 'aluminum' ? item.qty * (Number(item.weight)||0) * item.price : item.qty * item.price);
+    });
+  }
+  function calculate() {
+    readTable('aluminum'); readTable('accessory');
+    const aluminumTotal = state.aluminum.reduce((s,x)=>s+(Number(x.qty)||0)*(Number(x.weight)||0)*(Number(x.price)||0),0);
+    const accessoryTotal = $('#includeAccessories').checked ? state.accessories.reduce((s,x)=>s+(Number(x.qty)||0)*(Number(x.price)||0),0) : 0;
+    const subtotal = aluminumTotal + accessoryTotal;
+    const rawDiscount = Math.max(0, Number($('#discountValue').value)||0);
+    const discount = Math.min(subtotal, $('#discountType').value === 'percent' ? subtotal * Math.min(rawDiscount,100)/100 : rawDiscount);
+    const taxable = Math.max(0, subtotal - discount);
+    const vat = taxable * (Number($('#vatRate').value)||0) / 100;
+    const grand = taxable + vat;
+    $('#aluminumSubtotal').textContent = money(aluminumTotal);
+    $('#accessorySubtotal').textContent = money(accessoryTotal);
+    $('#discountAmount').textContent = money(discount);
+    $('#vatAmount').textContent = money(vat);
+    $('#grandTotal').textContent = money(grand);
+    $('#totalCard').textContent = money(grand);
+    $('#amountWords').textContent = 'Bằng chữ: ' + numberToVietnamese(Math.round(grand)) + '.';
+    $('#accessoryCount').textContent = $('#includeAccessories').checked ? state.accessories.length : 0;
+    $('#lineCount').textContent = state.aluminum.length + ($('#includeAccessories').checked ? state.accessories.length : 0);
+    $('#aluminumCount').textContent = state.aluminum.length;
+    return { aluminumTotal, accessoryTotal, subtotal, discount, vat, grand };
+  }
+  function numberToVietnamese(n) {
+    if (!n) return 'không đồng';
+    const ones=['không','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
+    const read3 = num => { let s=''; const h=Math.floor(num/100), t=Math.floor(num%100/10), u=num%10; if(h) s+=ones[h]+' trăm'; else if(t||u) s+='không trăm'; if(t>1) s+=' '+ones[t]+' mươi'; else if(t===1) s+=' mười'; else if(u && h) s+=' lẻ'; if(u){if(t>1&&u===1)s+=' mốt';else if(t>0&&u===5)s+=' lăm';else s+=' '+ones[u]} return s.trim(); };
+    const units=['',' nghìn',' triệu',' tỷ',' nghìn tỷ',' triệu tỷ']; let groups=[]; while(n>0){groups.unshift(n%1000);n=Math.floor(n/1000)}
+    let words=[]; groups.forEach((g,i)=>{if(g){let unit=units[groups.length-i-1]||'';words.push(read3(g)+unit)}}); return words.join(' ').replace(/\s+/g,' ').trim()+' đồng';
+  }
+  function bindEvents() {
+    $('#addAluminumBtn').addEventListener('click',()=>openPicker('aluminum'));
+    $('#addAccessoryBtn').addEventListener('click',()=>openPicker('accessory'));
+    $('#closeModal').addEventListener('click',closePicker);
+    $('#productModal').addEventListener('click',e=>{if(e.target===$('#productModal'))closePicker()});
+    $('#manualProductBtn').addEventListener('click',addManualProduct);
+    $('#modalSearch').addEventListener('input',renderCatalogOptions);
+    $('#productSearch').addEventListener('input',applyProductFilter);
+    $('#includeAccessories').addEventListener('change',()=>{const on=$('#includeAccessories').checked;$('#accessoriesContent').classList.toggle('hidden',!on);$('#accessoryDisabled').classList.toggle('hidden',on);calculate()});
+    ['discountValue','discountType','vatRate'].forEach(id=>$('#'+id).addEventListener('input',calculate));
+    ['aluminumRows','accessoryRows'].forEach(id=>$('#'+id).addEventListener('input',e=>{if(e.target.matches('[data-field]'))calculate()}));
+    ['aluminumRows','accessoryRows'].forEach(id=>$('#'+id).addEventListener('click',e=>{const b=e.target.closest('[data-delete]');if(!b)return;const kind=id==='aluminumRows'?'aluminum':'accessories';state[kind]=state[kind].filter(x=>x.id!==b.dataset.delete);renderRows();calculate()}));
+    $('#clearAluminumBtn').addEventListener('click',()=>{if(!state.aluminum.length)return;state.aluminum=[];renderRows();calculate();notify('Đã xóa toàn bộ dòng nhôm thanh.')});
+    $('#newQuoteBtn').addEventListener('click',newQuote);
+    $('#saveQuoteBtn').addEventListener('click',saveQuote);
+    $('#printQuoteBtn').addEventListener('click',()=>{const payload=buildQuotePayload();try{persistQuote(payload);localStorage.setItem('haihahung_quote_print',JSON.stringify(payload));window.open('print.html','_blank')}catch(err){notify('Không thể lưu/mở bản in. Hãy kiểm tra dung lượng lưu trữ hoặc cho phép cửa sổ bật lên.')}});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closePicker();if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveQuote()}});
+  }
+  function applyProductFilter() {
+    const q = ($('#productSearch').value||'').trim().toLocaleLowerCase('vi');
+    $$('#aluminumRows tr').forEach(tr=>{const item=state.aluminum.find(x=>x.id===tr.dataset.id);tr.style.display=!q||`${item?.code} ${item?.name} ${item?.system} ${item?.color} ${item?.spec}`.toLocaleLowerCase('vi').includes(q)?'':'none'});
+  }
+  function openPicker(mode) { state.mode=mode;$('#modalTitle').textContent=mode==='aluminum'?'Chọn nhôm thanh':'Chọn phụ kiện';$('#modalSubtitle').textContent=mode==='aluminum'?'Chọn sản phẩm trong danh mục để đưa vào báo giá.':'Chọn phụ kiện để thêm vào báo giá.';$('#modalSearch').value='';$('#productModal').classList.remove('hidden');renderCatalogOptions();setTimeout(()=>$('#modalSearch').focus(),30); }
+  function closePicker(){ $('#productModal').classList.add('hidden'); }
+  function renderCatalogOptions() {
+    const source=state.mode==='aluminum'?state.catalog:state.accessoryCatalog;
+    const q=$('#modalSearch').value.trim().toLocaleLowerCase('vi');
+    const filtered=source.filter(x=>`${x.code} ${x.name} ${x.group} ${x.system} ${x.color} ${x.unit} ${x.weight ?? ''}`.toLocaleLowerCase('vi').includes(q)).slice(0,150);
+    const host=$('#modalList');
+    if(!filtered.length){host.innerHTML='<div class="modal-empty">Không tìm thấy sản phẩm phù hợp. Hãy thử mã hàng, tên hàng hoặc hệ nhôm.</div>';}
+    else host.innerHTML=filtered.map((x,i)=>`<button class="catalog-item" data-catalog-index="${i}" type="button"><span class="catalog-symbol">${state.mode==='aluminum'?'▤':'⚙'}</span><span class="catalog-info"><strong>${escapeHtml(x.name||'Sản phẩm')}</strong><small>${escapeHtml(x.code||'')} · ${escapeHtml(x.system||x.group||x.unit||'')}${x.color?' · '+escapeHtml(x.color):''}${state.mode==='aluminum'&&x.weight!==''&&x.weight!==undefined?' · '+escapeHtml(formatWeight(x.weight))+' kg/thanh':''}</small></span><span class="catalog-price">${money(x.price||0)}</span></button>`).join('');
+    $$('.catalog-item',host).forEach((btn,i)=>btn.addEventListener('click',()=>{addCatalogItem(filtered[i]);closePicker()}));
+    $('#catalogStatus').textContent=state.catalogLoaded?`Đã tải ${state.catalog.length} mã nhôm và ${state.accessoryCatalog.length} mã phụ kiện. Có thể tìm theo mã, tên hoặc hệ.`:'Chưa tải được danh mục. Hãy chạy ứng dụng qua máy chủ web hoặc nhập thủ công.';
+  }
+  function addCatalogItem(x) {
+    if(state.mode==='aluminum') {
+      const weight=Number(x.weight)||0;
+      state.aluminum.push({id:uid(),code:x.code||'',name:x.name||'Nhôm thanh',system:x.system||'',color:x.color||'',weight, spec:weight?`${formatWeight(weight)} kg/thanh`:(x.spec||''),qty:1,unit:x.unit||'Thanh',price:Number(x.price)||0});
+    } else {
+      state.accessories.push({id:uid(),code:x.code||'',name:x.name||'Phụ kiện',system:x.system||'',group:x.group||x.system||'',qty:1,unit:x.unit||'Cái',price:Number(x.price)||0});
+    }
+    if(state.mode==='accessory'&&!$('#includeAccessories').checked){$('#includeAccessories').checked=true;$('#includeAccessories').dispatchEvent(new Event('change'))}
+    renderRows();calculate();notify('Đã thêm sản phẩm vào báo giá.');
+  }
+  function formatWeight(value) { return new Intl.NumberFormat('vi-VN',{maximumFractionDigits:4}).format(Number(value)||0); }
+  function addManualProduct() {
+    const isAl=state.mode==='aluminum';const code=prompt('Nhập mã hàng (có thể để trống):','');if(code===null)return;
+    const name=prompt('Nhập tên sản phẩm:',isAl?'Thanh nhôm mới':'Phụ kiện mới');if(!name?.trim())return;
+    const priceRaw=prompt('Nhập đơn giá (VND):','0');if(priceRaw===null)return;const price=Math.max(0,Number(priceRaw.replace(/[,.\s]/g,''))||0);
+    addCatalogItem({code:code.trim(),name:name.trim(),price,unit:isAl?'Thanh':'Cái',color:'Màu tiêu chuẩn',spec:'',group:'Phụ kiện cửa'});
+  }
+  async function loadCatalog() {
+    // Hai nguồn dữ liệu gốc được giữ riêng: nhomthanh.json và phukien.json.
+    try {
+      const [alRes, pkRes] = await Promise.all([
+        fetch(`nhomthanh.json?v=${Date.now()}`, {cache:'no-store'}),
+        fetch(`phukien.json?v=${Date.now()}`, {cache:'no-store'})
+      ]);
+      if (!alRes.ok) throw new Error('Không tải được nhomthanh.json');
+      if (!pkRes.ok) throw new Error('Không tải được phukien.json');
+      const [alRaw, pkRaw] = await Promise.all([alRes.json(), pkRes.json()]);
+      const alRows = Array.isArray(alRaw) ? alRaw : (Array.isArray(alRaw.Data) ? alRaw.Data : []);
+      const pkRows = Array.isArray(pkRaw) ? pkRaw : (Array.isArray(pkRaw.Data) ? pkRaw.Data : []);
+      state.catalog = normaliseRows(alRows, 'aluminum');
+      state.accessoryCatalog = normaliseRows(pkRows, 'accessory');
+      state.catalogLoaded = true;
+      renderCatalogOptions();
+    } catch(err) {
+      state.catalogLoaded = false;
+      console.error('Không tải được danh mục:', err);
+      $('#catalogStatus').textContent = 'Không tải được tệp danh mục. Hãy mở bằng máy chủ web (ví dụ GitHub Pages hoặc localhost), không mở trực tiếp bằng file://.';
+    }
+  }
+  function normaliseRows(rows, kind) {
+    if(!Array.isArray(rows)) return [];
+    if(kind==='aluminum') return rows.map(r=>({
+      code:String(r['Mã Hàng hóa'] ?? ''),
+      name:String(r['Tên Hàng hóa'] ?? ''),
+      system:String(r['Hệ Nhôm'] ?? ''),
+      color:String(r['Màu'] ?? ''),
+      weight:Number(r['Khối lượng (kg/thanh)']) || 0,
+      unit:String(r['ĐVT'] ?? 'Thanh').trim() || 'Thanh',
+      price:Number(r['Đơn giá']) || 0,
+      spec:''
+    })).filter(x=>x.code||x.name);
+    return rows.map(r=>({
+      code:String(r.code ?? ''),
+      name:String(r.name ?? ''),
+      system:String(r.system ?? ''),
+      group:String(r.grp ?? r.system ?? ''),
+      unit:String(r.unit ?? 'Cái').trim() || 'Cái',
+      price:Number(r.price) || 0,
+      color:'', weight:'', spec:''
+    })).filter(x=>x.code||x.name);
+  }
+  function newQuote() {
+    if(!confirm('Tạo phiếu báo giá mới? Các dòng hiện tại sẽ được làm mới.'))return;
+    state.aluminum=[];state.accessories=[];renderRows();$('#customerName').value='';$('#customerPhone').value='';$('#customerContact').value='';$('#customerAddress').value='';$('#quoteNotes').value='';$('#discountValue').value='0';$('#discountType').value='percent';$('#vatRate').value='8';$('#includeAccessories').checked=true;$('#includeAccessories').dispatchEvent(new Event('change'));
+    const seq=String(Date.now()).slice(-3);$('#quoteCode').textContent=`BG-${String(today.getFullYear()).slice(-2)}${pad(today.getMonth()+1)}${pad(today.getDate())}-${seq}`;calculate();notify('Đã tạo phiếu báo giá mới.');
+  }
+  function buildQuotePayload() {
+    const sums=calculate();
+    return {company:{name:'CÔNG TY TNHH KINH DOANH TỔNG HỢP HẢI HÀ HƯNG'},quote:{code:$('#quoteCode').textContent,date:fmtDateISO(new Date()),validityDays:Number($('#validity').value)||15,salesperson:$('#salesperson').value},customer:{name:$('#customerName').value.trim(),phone:$('#customerPhone').value,contact:$('#customerContact').value,address:$('#customerAddress').value},aluminum:state.aluminum.map(x=>({...x})),accessoriesIncluded:$('#includeAccessories').checked,accessories:state.accessories.map(x=>({...x})),discount:{type:$('#discountType').value,value:Number($('#discountValue').value)||0,amount:sums.discount},vatRate:Number($('#vatRate').value)||0,totals:sums,notes:$('#quoteNotes').value,deliveryTime:$('#deliveryTime').value,paymentTerms:$('#paymentTerms').value,savedAt:new Date().toISOString()};
+  }
+  function persistQuote(payload) {
+    const key='haihahung_quote_history';
+    const history=JSON.parse(localStorage.getItem(key)||'[]');
+    const record={...payload,savedAt:new Date().toISOString()};
+    const idx=history.findIndex(x=>x.quote?.code===record.quote?.code);
+    if(idx>=0) history[idx]=record; else history.unshift(record);
+    localStorage.setItem(key,JSON.stringify(history));
+  }
+  function saveQuote() {
+    const payload=buildQuotePayload();
+    if(!payload.customer.name){$('#customerName').focus();notify('Vui lòng nhập tên khách hàng trước khi lưu.');return;}
+    try { persistQuote(payload); const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${payload.quote.code}.json`;a.click();URL.revokeObjectURL(a.href);notify('Đã lưu báo giá vào Lịch sử báo giá và xuất tệp JSON.'); }
+    catch(err){notify('Không thể lưu báo giá. Hãy kiểm tra dung lượng lưu trữ trình duyệt.');}
+  }
+  function notify(message){const el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(state.toastTimer);state.toastTimer=setTimeout(()=>el.classList.remove('show'),3300)}
+  init();
 })();
-
-const DATA_URL = 'data.json';
-
-// 2) Utilities
-function toNumber(v){
-  if (typeof v === 'number' && Number.isFinite(v)) return v;
-  const raw = String(v ?? ''); if (!raw) return 0;
-  let s = raw.replace(/[^\d.,-]/g, '').trim();
-  const lastDot = s.lastIndexOf('.'); const lastCom = s.lastIndexOf(',');
-  if (lastDot !== -1 && lastCom !== -1){
-    const decIsComma = lastCom > lastDot;
-    if (decIsComma){ s = s.replace(/\./g,''); s = s.replace(/,/g,'.'); } else { s = s.replace(/,/g,''); }
-  } else {
-    if (s.includes('.') && !s.includes(',')) if ((s.match(/\./g)||[]).length>1) s = s.replace(/\./g,'');
-    if (s.includes(',') && !s.includes('.')) s = s.replace(/,/g,'.');
-  }
-  const n = Number(s); return Number.isFinite(n) ? n : 0;
-}
-const money = n => (Number(n)||0).toLocaleString('vi-VN');
-const norm  = s => String(s ?? '').trim();
-const opt   = (v,l) => { const o=document.createElement('option'); o.value=v; o.textContent=l; return o; };
-
-// 3) Normalize / matching helpers
-function _rmAccents(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D'); }
-function vnNoAccent(s){ return _rmAccents(String(s||'').toLowerCase()).replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim(); }
-function nameTokens(s){ return new Set(vnNoAccent(s).split(' ').filter(Boolean)); }
-function jaccard(a, b){ const inter=[...a].filter(x=>b.has(x)).length; const union=new Set([...a,...b]).size||1; return inter/union; }
-function codeNormVariants(s){
-  const raw = String(s||'').toUpperCase().trim();
-  let a = raw.replace(/^N-/, '').replace(/[\s_]/g,'').replace(/-/g,'');
-  const b = a.replace(/^K(\d{2,3})S/, 'K$1'); // K55S -> K55
-  return {raw, a, b};
-}
-
-// 4) Catalog (from data.json)
-let bySystem = {}; // sys => rows[]
-let CATALOG  = []; // {sys, code, name, kg, price, tokens, codeA, codeB}
-const body = document.getElementById('itemsBody') || document.querySelector('#orderTable tbody') || document.body;
-
-function indexData(records){
-  console.log("[data] Indexing records, count:", (records||[]).length);
-  bySystem = (records||[]).reduce((acc, r) => {
-    const k = norm(r['Hệ Nhôm'] ?? r['He Nhom'] ?? r['Hệ']);
-    if (!k) return acc; (acc[k] = acc[k] || []).push(r); return acc;
-  }, {});
-  CATALOG = [];
-  for(const sys in bySystem){
-    for(const r of bySystem[sys]){
-      const code = String(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang'] ?? '').trim();
-      const name = String(r['Tên Hàng hóa'] ?? r['Tên hàng'] ?? '').trim();
-      const price= toNumber(r['Đơn giá'] ?? r['Don gia']);
-      const kg   = toNumber(r['Khối lượng (kg/thanh)'] ?? r['Khoi luong (kg/thanh)'] ?? r['Kg/thanh']);
-      if(!code && !name) continue;
-      const {a:codeA, b:codeB} = codeNormVariants(code);
-      CATALOG.push({ sys, code, name, price, kg, tokens: nameTokens(name), codeA, codeB });
-    }
-  }
-  console.log("[data] Systems:", Object.keys(bySystem));
-  console.log("[data] Catalog size:", CATALOG.length);
-}
-
-// 5) Table helpers
-function createRow(){
-  const tpl = document.getElementById('rowTpl');
-  const tr = tpl?.content?.firstElementChild?.cloneNode(true) || document.createElement('tr');
-  if(!tpl){
-    tr.innerHTML = `<td class="serial"></td>
-      <td><select class="sys"></select></td>
-      <td><select class="code"></select></td>
-      <td><input class="iname"></td>
-      <td class="qty-cell"><button class="qty-dec">-</button><input class="qty" value="1" type="number" min="1"><button class="qty-inc">+</button></td>
-      <td><input class="price" type="number" min="0"></td>
-      <td class="total">—</td>
-      <td><button class="btn-del">X</button></td>`;
-  }
-  wireRow(tr); body.appendChild(tr); renumber(); return tr;
-}
-function renumber(){ [...body.querySelectorAll('tr')].forEach((tr,i)=> tr.querySelector('.serial') && (tr.querySelector('.serial').textContent = i+1)); }
-function getParts(tr){
-  return {
-    sys: tr.querySelector('.sys'), code: tr.querySelector('.code'), iname: tr.querySelector('.iname'),
-    icolor: tr.querySelector('.icolor'), unit: tr.querySelector('.unit'),
-    qty: tr.querySelector('.qty'), price: tr.querySelector('.price'), total: tr.querySelector('.total')
-  };
-}
-function fillSystemSelect(sel){
-  if(!sel) return;
-  const systems = Object.keys(bySystem).sort();
-  while (sel.options?.length) sel.remove(0);
-  sel.appendChild(opt('', '— Hệ —'));
-  systems.forEach(s=> sel.appendChild(opt(s,s)));
-}
-function onSystemChange(tr){
-  const { sys, code, iname, icolor, total } = getParts(tr);
-  if(iname) iname.value = ''; if(total) total.textContent = '—'; tr.removeAttribute('data-kg'); tr.removeAttribute('data-total');
-  if(code){ while (code.options.length) code.remove(0); code.appendChild(opt('', '— Mã hàng —')); }
-  if(icolor){ while (icolor.options.length) icolor.remove(0); icolor.appendChild(opt('', '— Màu —')); }
-  const list = bySystem[norm(sys?.value)] || []; const seen = new Set();
-  list.forEach(r=>{ const m = norm(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang']); if (!m || seen.has(m)) return; seen.add(m); code?.appendChild(opt(m, m)); });
-}
-function onCodeChange(tr){
-  const { sys, code, iname, icolor, price } = getParts(tr);
-  const list = bySystem[norm(sys?.value)] || [];
-  const variants = list.filter(r => norm(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang']) === norm(code?.value));
-  if (!variants.length){ return; }
-  const first = variants[0];
-  const name  = first['Tên Hàng hóa'] ?? first['Ten Hang hoa'] ?? first['Tên hàng'] ?? '';
-  const kg    = toNumber(first['Khối lượng (kg/thanh)'] ?? first['Khoi luong (kg/thanh)'] ?? first['Kg/thanh']);
-  if(iname) iname.value = name; tr.dataset.kg = kg;
-  if(icolor){
-    while (icolor.options.length) icolor.remove(0);
-    const colors = [...new Set(variants.map(r => norm(r['Màu'] ?? r['Mau'])).filter(Boolean))];
-    icolor.appendChild(opt('', colors.length ? '— Chọn màu —' : '— Màu —'));
-    colors.forEach(c => icolor.appendChild(opt(c,c))); if (colors.length === 1) icolor.value = colors[0];
-  }
-  const byColor = variants.find(r => norm(r['Màu'] ?? r['Mau']) === norm(icolor?.value)) || first;
-  const pAuto = toNumber(byColor['Đơn giá'] ?? byColor['Don gia']); if(price && !toNumber(price.value)) price.value = pAuto ? String(pAuto) : '';
-  if(price) sanitize(price); computeRow(tr);
-}
-function onColorChange(tr){
-  const { sys, code, icolor, price } = getParts(tr);
-  const list = bySystem[norm(sys?.value)] || [];
-  const row = list.find(r => norm(r['Mã Hàng hóa'] ?? r['Mã hàng'] ?? r['Ma hang']) === norm(code?.value)
-                         && norm(r['Màu'] ?? r['Mau']) === norm(icolor?.value));
-  const p = toNumber(row && (row['Đơn giá'] ?? row['Don gia'])); if(price && !toNumber(price.value)) price.value = p ? String(p) : '';
-  if(price) sanitize(price); computeRow(tr);
-}
-function sanitize(input){ const n = toNumber(input?.value); if(input) input.value = n ? String(n) : ''; }
-function computeRow(tr){
-  const { qty, price, total } = getParts(tr);
-  const kg = toNumber(tr.dataset.kg); const dongia = toNumber(price?.value); const sl = toNumber(qty?.value || 1);
-  const isAcc = tr.dataset.kind === 'acc';
-  const tt = isAcc ? Math.round(dongia * sl) : Math.round(kg * dongia * sl);
-  if(total) total.textContent = (dongia && sl && (isAcc || kg)) ? money(tt) : '—';
-  tr.dataset.total = String(tt || 0);
-  recomputeSummary();
-}
-function adjustQty(tr, delta){
-  const { qty } = getParts(tr);
-  const cur = toNumber(qty?.value || 1);
-  const v = Math.max(1, cur + delta);
-  if(qty) qty.value = String(v);
-  computeRow(tr);
-}
-function wireRow(tr){
-  const { sys, code, price, icolor, qty } = getParts(tr);
-  fillSystemSelect(sys);
-  sys?.addEventListener('change', () => onSystemChange(tr));
-  code?.addEventListener('change', () => onCodeChange(tr));
-  icolor?.addEventListener('change', () => onColorChange(tr));
-  price?.addEventListener('input',  () => { sanitize(price); computeRow(tr); });
-  qty?.addEventListener('input',    () => { sanitize(qty);   computeRow(tr); });
-  qty?.addEventListener('keydown',  (e)=>{ if(e.key==='Enter'){ e.preventDefault(); createRow().querySelector('.sys')?.focus(); }});
-  tr.querySelector('.qty-dec')?.addEventListener('click', ()=> adjustQty(tr, -1));
-  tr.querySelector('.qty-inc')?.addEventListener('click', ()=> adjustQty(tr, +1));
-  tr.querySelector('.btn-del')?.addEventListener('click', ()=>{ tr.remove(); renumber(); recomputeSummary(); });
-}
-function recomputeSummary(){
-  const subtotal = [...body.querySelectorAll('tr')].map(tr => toNumber(tr.dataset.total)).reduce((a,b)=>a+b,0);
-  const dAbs = Math.max(0, toNumber(document.getElementById('discountAmount')?.value));
-  const grand = Math.max(0, subtotal - dAbs);
-  const s1=document.getElementById('sum_subtotal'), s2=document.getElementById('sum_grand');
-  const c1=document.getElementById('card_subtotal'), c2=document.getElementById('card_grand');
-  if(s1) s1.textContent = money(subtotal); if(s2) s2.textContent = money(grand);
-  if(c1) c1.textContent = money(subtotal); if(c2) c2.textContent = money(grand);
-}
-
-// 6) CSV export
-function exportCsv(){
-  const headers = ['STT','Hệ nhôm','Mã hàng','Tên hàng / Quy cách','Màu nhôm','ĐVT','Số lượng','Đơn giá','Thành tiền'];
-  const lines = [headers.join(',')];
-  [...body.querySelectorAll('tr')].forEach((tr,i)=>{
-    const { sys, code, iname, icolor, qty, price, unit } = getParts(tr);
-    const tt = toNumber(tr.dataset.total);
-    const row = [i+1, sys?.value||'', code?.value||'', iname?.value||'', icolor?.value||'', (unit?.value||'Thanh'), qty?.value||1, price?.value||0, tt];
-    lines.push(row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
-  });
-  const blob = new Blob(['\ufeff' + lines.join('\n')], {type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `don-hang-${Date.now()}.csv`; a.click(); URL.revokeObjectURL(a.href);
-}
-
-// 7) Matching logic
-function guessSystemByCode(code){
-  const c = String(code||'').trim();
-  if(!c) return '';
-  for (const sys in bySystem){
-    if ((bySystem[sys]||[]).some(r => String(r['Mã hàng']||r['Mã Hàng hóa']||r['Ma hang']||'').trim() === c)){
-      return sys;
-    }
-  }
-  return '';
-}
-function findBestByCodeOrName(code, name, minName=0.5){
-  const {a:codeA, b:codeB} = codeNormVariants(code);
-  // 1) code exact variant
-  let hit = CATALOG.find(x => x.codeA === codeA) || CATALOG.find(x => x.codeB === codeB);
-  if (hit) return { sys: hit.sys, code: hit.code, via: 'code_exact' };
-  // 2) name similarity
-  const qTokens = nameTokens(name);
-  let best = null, bestScore = 0;
-  for (const row of CATALOG){
-    let s = jaccard(qTokens, row.tokens);
-    if (vnNoAccent(row.name).includes(vnNoAccent(name))) s = Math.max(s, 0.95); // ưu tiên chứa cụm
-    if (s > bestScore){ bestScore = s; best = row; }
-  }
-  if (best && bestScore >= minName) return { sys: best.sys, code: best.code, via: `name_${bestScore.toFixed(2)}` };
-  return null;
-}
-function existsInCatalog(code){
-  const {a:codeA, b:codeB} = codeNormVariants(code);
-  return CATALOG.some(x => x.codeA === codeA || x.codeB === codeB);
-}
-
-// 8) Import (XLSX A=STT, B=Name, C=Code, D=Qty), robust sheet auto-detect, skip MISS
-function ensureImportInput(){
-  let input = document.getElementById('importFile');
-  if(!input){
-    input = document.createElement('input');
-    input.type = 'file'; input.id = 'importFile';
-    input.accept = '.xlsx,.csv,.json'; input.hidden = true;
-    document.body.appendChild(input);
-  }
-  return input;
-}
-async function importData(){
-  const input = ensureImportInput();
-  input.onchange = async () => {
-    const file = input.files[0]; if(!file){ console.warn("[import] No file selected"); return; }
-    console.log("[import] Start:", file.name, file.type, "size:", file.size);
-    try{
-      let parsed = [];
-      if (file.name.toLowerCase().endsWith('.xlsx')){
-        if (typeof XLSX === 'undefined'){ alert("Thiếu thư viện XLSX."); return; }
-        const ab = await file.arrayBuffer();
-        const wb = XLSX.read(ab, { type:'array' });
-        const names = wb.SheetNames || [];
-        console.log("[import] Workbook sheets:", names);
-        if(!names.length){ alert("File Excel không có sheet."); input.value=''; return; }
-
-        // pick the sheet with the most data in A3:D
-        let best = {name:null, count: -1};
-        for (const name of names){
-          const ws = wb.Sheets[name];
-          let rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-          rows = rows.slice(2).map(r => (r||[]).slice(0,4));
-          const cnt = rows.filter(r => (r[0]||r[1]||r[2]||r[3])).length;
-          console.log(`[import] Probe "${name}": A3:D rows =`, cnt, rows.slice(0,2));
-          if (cnt > best.count){ best = {name, count: cnt}; }
-        }
-        if (!best.name || best.count <= 0){ alert("Không thấy dữ liệu trong A3:D của các sheet."); input.value=''; return; }
-
-        // use the best sheet
-        const ws = wb.Sheets[best.name];
-        let rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
-        rows = rows.slice(2).map(r => (r||[]).slice(0,4)); // A..D
-        console.log(`[import] Use sheet "${best.name}" rows:`, rows.length, rows.slice(0,5));
-
-        // map: A=STT, B=Name, C=Code, D=Qty; price=0
-        parsed = rows
-          .map(r => ({ code:String(r[2]||'').trim(), name:String(r[1]||'').trim(), qty:toNumber(r[3]||1), price:0, sys:'', matched:false }))
-          .filter(x => x.code || x.name);
-
-        // fuzzy match/ code match
-        parsed = parsed.map(r => {
-          let sys = r.sys || '';
-          let code = r.code;
-          const found = findBestByCodeOrName(code, r.name, 0.5);
-          if (found){
-            code = found.code;
-            if (!sys) sys = found.sys;
-            r.matched = true;
-            console.log('[match]', r.name, '=>', code, '(', sys, ') via', found.via);
-          } else if (code && existsInCatalog(code)) {
-            if (!sys) sys = guessSystemByCode(code);
-            r.matched = true;
-            console.log('[match-by-code-only]', r.name, '=>', code, '(', sys, ')');
-          } else {
-            console.warn('[match MISS]', r.name, '| code:', r.code);
-          }
-          return { ...r, code, sys, matched: r.matched };
-        });
-      } else {
-        alert("Nút này chỉ hỗ trợ Excel (.xlsx). CSV/JSON vui lòng dùng nút riêng.");
-        input.value=''; return;
-      }
-
-      console.log("[import] Parsed rows:", parsed.length);
-      
-      // Fill table: only matched
-      const toAdd = parsed.filter(x => x.matched);
-      body.innerHTML='';
-      for(const r of toAdd){
-        const tr = createRow();
-        const { sys, code, iname, qty, price } = getParts(tr);
-        if(sys){ sys.value = r.sys || ''; onSystemChange(tr); }
-        if(code){ code.value = r.code || ''; onCodeChange(tr); }
-        if(iname) iname.value = r.name || '';
-        if(qty)  qty.value  = r.qty || 1;
-        if(price)price.value= r.price ? String(r.price) : price.value;
-        computeRow(tr);
-      }
-      renumber(); recomputeSummary();
-      console.log("[import] Done. Rows added:", toAdd.length, "| skipped (miss):", parsed.length - toAdd.length);
-    }catch(e){
-      alert('Không đọc được file import. Xem console để biết chi tiết.');
-      console.error("[import] ERROR:", e);
-    }
-    input.value='';
-  };
-  input.click();
-}
-
-// 9) Accessories (optional UI)
-let ACCESSORIES = [];
-async function loadAccessories(){
-  try{
-    const res = await fetch('phukien.json', {cache:'no-store'});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    ACCESSORIES = await res.json();
-    console.log("[acc] Loaded accessories:", ACCESSORIES.length);
-  }catch(e){ console.warn('Không tải được phukien.json', e); ACCESSORIES = []; }
-}
-function uniqueAccessorySystems(){ return Array.from(new Set(ACCESSORIES.map(x=> String(x.system||'').trim()).filter(Boolean))); }
-function renderAccessoryList(system, q=''){
-  const list = document.getElementById('pkList'); if(!list) return;
-  const lower = t => String(t||'').toLowerCase();
-  const rows = ACCESSORIES.filter(x => (!system || x.system===system) &&
-    (lower(x.code).includes(lower(q)) || lower(x.name).includes(lower(q))));
-  if(!rows.length){ list.innerHTML = '<div style="padding:10px;color:#9aa3b2">Chưa có phụ kiện phù hợp.</div>'; return; }
-  list.innerHTML = rows.map((x,i)=>{
-    const price = Number(x.price||0).toLocaleString('vi-VN');
-    return `<div class="pk-item">
-      <input type="checkbox" class="pk-check" id="pk_${i}"
-             data-code="${x.code||''}" data-system="${x.system||''}" data-name="${x.name||''}"
-             data-unit="${x.unit||''}" data-price="${x.price||0}" data-grp="${x.grp||''}">
-      <label for="pk_${i}"><b>${x.code||''}</b> — ${x.name||''}
-        <span style="color:#94a3b8">(${x.system||''})</span><br><i>${x.unit||''}</i> · <b>${price}</b></label>
-    </div>`;
-  }).join('');
-}
-function openAccessoryPicker(){
-  const dlg = document.getElementById('pkModal'); if(!dlg) return;
-  const selSys = document.getElementById('pkSystem');
-  const search = document.getElementById('pkSearch');
-  const closeBtn = document.getElementById('pkClose'); closeBtn && (closeBtn.onclick = ()=> dlg.close());
-  const systems = uniqueAccessorySystems();
-  if(selSys){
-    selSys.innerHTML = '<option value="">— Theo hệ —</option>' + systems.map(s=>`<option value="${s}">${s}</option>`).join('');
-    const firstSys = document.querySelector('#itemsBody .sys')?.value || '';
-    if(firstSys && systems.includes(firstSys)) selSys.value = firstSys;
-    selSys.onchange = ()=> renderAccessoryList(selSys.value, search?.value || '');
-  }
-  if(search){ search.oninput = ()=> renderAccessoryList(selSys?.value || '', search.value); }
-  renderAccessoryList(selSys?.value || '', '');
-  dlg.showModal();
-}
-function collectSelectedAccessories(){
-  const items = Array.from(document.querySelectorAll('#pkList .pk-item'));
-  const picked = [];
-  for(const it of items){
-    const cb = it.querySelector('.pk-check');
-    if(cb && cb.checked){
-      picked.push({
-        system: cb.dataset.system, code: cb.dataset.code, name: cb.dataset.name,
-        unit: cb.dataset.unit || 'Cái', price: Number(cb.dataset.price||0), qty: 1,
-        grp: cb.dataset.grp || ''
-      });
-    }
-  }
-  return picked;
-}
-function ensureOption(sel, value, label){
-  if(!sel) return;
-  if([...sel.options].some(o=>o.value===value)) return;
-  const o = document.createElement('option'); o.value = value; o.textContent = label || value; sel.appendChild(o);
-}
-function addAccessoriesToOrder(picked){
-  if(!picked.length) return;
-  for(const a of picked){
-    const tr = createRow();
-    const { sys, code, iname, qty, price, unit } = getParts(tr);
-    tr.dataset.kind = 'acc'; tr.dataset.grp = a.grp || '';
-    tr.dataset.kg = 1; // phụ kiện: thành tiền = đơn giá * SL
-    ensureOption(sys, a.system||'', a.system||''); if(sys) sys.value = a.system || '';
-    ensureOption(code, a.code||'', a.code||'');   if(code) code.value = a.code || '';
-    if(iname) iname.value = a.name || '';
-    if(unit) unit.value = a.unit || 'Cái';
-    if(qty)  qty.value  = String(1);
-    if(price)price.value= String(a.price||0);
-    computeRow(tr);
-  }
-  console.log("[acc] Added accessories:", picked.length);
-}
-function setupAccessoryUI(){
-  loadAccessories();
-  const btn = document.getElementById('addAccessoryBtn');
-  btn && btn.addEventListener('click', openAccessoryPicker);
-  const ok = document.getElementById('pkSelect');
-  ok && ok.addEventListener('click', ()=>{
-    const picked = collectSelectedAccessories();
-    addAccessoriesToOrder(picked);
-    document.getElementById('pkModal')?.close();
-  });
-}
-
-// 10) Print integration
-function collectForPrint(){
-  const rows = [...document.querySelectorAll('#itemsBody tr')].map((tr,i)=>{
-    const { sys, code, iname, icolor, unit, qty, price } = getParts(tr);
-    const kgPer = Number(tr.dataset.kg || 0);
-    const amount= Number(tr.dataset.total || 0);
-    const kind  = tr.dataset.kind || 'main';
-    return {
-      stt: i+1,
-      sys: sys?.value || '',
-      code: code?.value || '',
-      name: iname?.value || '',
-      color: icolor?.value || '',
-      unit: unit?.value || 'Thanh',
-      qty: Number(qty?.value || 1),
-      kgPer, price: Number(price?.value || 0), amount, kind
-    };
-  }).filter(r => r.sys || r.code || r.name);
-
-  const subtotal = rows.reduce((s,r)=> s + Number(r.amount||0), 0);
-  const discount = Number(document.getElementById('discountAmount')?.value || 0);
-  const grand    = Math.max(0, subtotal - discount);
-
-  return {
-    customer: document.getElementById('customer')?.value || '',
-    phone:    document.getElementById('phone')?.value || '',
-    dateText: document.getElementById('today')?.textContent || '',
-    rows, subtotal, discount, grand
-  };
-}
-
-// 11) Init
-async function init(){
-  try{
-    const res = await fetch(DATA_URL, {cache:'no-store'});
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const js = await res.json(); 
-    const records = js.Data || js || [];
-    indexData(records);
-  } catch(e){ console.error('[init] Không tải được data.json', e); }
-  createRow();
-
-  // Buttons
-  document.getElementById('addRowBtn')?.addEventListener('click', ()=>{ createRow(); });
-  document.getElementById('exportCsvBtn')?.addEventListener('click', exportCsv);
-  document.getElementById('discountAmount')?.addEventListener('input', recomputeSummary);
-
-  const importBtn = document.getElementById('importBtn');
-  importBtn && importBtn.addEventListener('click', (e)=>{ e.preventDefault(); importData(); });
-
-  const printBtn = document.getElementById('printBtn');
-  if (printBtn){
-    printBtn.addEventListener('click', ()=>{
-      const payload = collectForPrint();
-      try{ localStorage.setItem('order_print_payload', JSON.stringify(payload)); }catch(e){}
-      window.open('print.html','_blank');
-    });
-  }
-
-  // Mở optimize.html khi bấm "Tối ưu cắt"
-  const optimizeBtn = document.getElementById('optimizeBtn');
-  if (optimizeBtn){
-    optimizeBtn.addEventListener('click', ()=>{
-      window.open('optimize/index.html','_blank');
-    });
-  }
-
-  setupAccessoryUI();
-  console.log("[init] App ready");
-}
-
-document.addEventListener('DOMContentLoaded', init);

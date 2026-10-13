@@ -1,121 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <link rel="icon" type="image/png" href="logo.png">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PHIẾU BÁO ĐƠN HÀNG</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#165dca" />
+  <title>Phiếu báo giá | Hải Hà Hưng</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="wrap">
-    <header class="sheet-head">
-      <h1 class="title">PHIẾU BÁO ĐƠN HÀNG</h1>
-      <div class="right-head">
-        <div class="field"><label for="customer">Khách hàng</label><input id="customer" placeholder="Tên khách"/></div>
-        <div class="field"><label for="phone">SĐT</label><input id="phone" placeholder="09xx xxx xxx"/></div>
-        <div class="date" id="today">—</div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-lockup">
+        <div class="brand-mark"><img src="logo-hai-ha-hung.png" alt="Logo Hải Hà Hưng" /></div>
+        <div><strong>HẢI HÀ HƯNG</strong><small>BUSINESS MANAGEMENT</small></div>
       </div>
-    </header>
-
-    <div class="actions" role="toolbar" aria-label="Thao tác nhanh">
-      <button class="btn btn-plain" id="addRowBtn" type="button">+ Thêm mã</button>
-      <button class="btn btn-plain" id="addAccessoryBtn" type="button">+ Thêm phụ kiện</button>
-      <button class="btn btn-plain" id="importBtn" type="button">Import ACT (.Xlxs)</button>
-      <button class="btn btn-plain" id="exportCsvBtn" type="button">Tải Excel (.csv)</button>
-      <button class="btn btn-plain" id="optimizeBtn" type="button">Tối ưu cắt</button>
-      <button class="btn btn-primary" id="printBtn" type="button">In / PDF</button>
-    </div>
-
-    <div class="table-wrap" role="region" aria-label="Bảng nhập đơn hàng">
-      <table>
-        <thead>
-          <tr>
-            <th class="center" style="width:56px">STT</th>
-            <th style="width:150px">Hệ nhôm</th>
-            <th style="width:170px">Mã hàng</th>
-            <th>Tên hàng / Quy cách</th>
-            <th class="right" style="width:90px">Số lượng</th>
-            <th class="right" style="width:120px">Đơn giá</th>
-            <th class="right" style="width:130px">Thành tiền</th>
-            <th class="center del" style="width:80px">Xoá</th>
-          </tr>
-        </thead>
-        <tbody id="itemsBody"></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="6" class="right"><strong>TỔNG CỘNG</strong></td>
-            <td id="sum_subtotal"></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td colspan="6" class="right"><strong>Tổng giá trị đơn hàng</strong></td>
-            <td id="sum_grand"></td>
-            <td></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-
-    <div class="foot">
-      <div class="hint">Mẹo: gõ <b>Enter</b> ở ô Số lượng sẽ tự nhảy sang dòng mới. Trên điện thoại, kéo ngang bảng để xem đủ cột.</div>
-      <div class="totals">
-        <div class="row"><span>Tạm tính</span><span id="card_subtotal">—</span></div>
-        <div class="row total"><span>Tổng thanh toán</span><span id="card_grand">—</span></div>
-        <div class="row input-row">
-          <label for="discountAmount">Chiết khấu (VNĐ)</label>
-          <input id="discountAmount" type="number" min="0" step="1000" value="0"/>
-        </div>
+      <div class="side-caption">KHÔNG GIAN LÀM VIỆC</div>
+      <nav class="side-nav" aria-label="Điều hướng chính">
+        <a href="#" class="nav-item"><span class="nav-icon">▦</span> Tổng quan</a>
+        <a href="danh-muc-nhom.html" class="nav-item"><span class="nav-icon">▤</span> Danh mục nhôm</a>
+        <a href="phu-kien.html" class="nav-item"><span class="nav-icon">◫</span> Phụ kiện</a>
+        <a href="#" class="nav-item active"><span class="nav-icon">▧</span> Báo giá <span class="nav-pill">Mới</span></a>
+        <a href="lich-su-bao-gia.html" class="nav-item"><span class="nav-icon">◷</span> Lịch sử báo giá</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="help-card"><div class="help-icon">?</div><strong>Cần hỗ trợ?</strong><p>Liên hệ quản trị hệ thống để cập nhật dữ liệu và bảng giá.</p><a href="mailto:kinhdoanh@haihahung.vn">Liên hệ hỗ trợ ↗</a></div>
+        <div class="user-profile"><div class="avatar"><img src="logo-hai-ha-hung.png" alt="Logo Hải Hà Hưng" /></div><div class="user-info"><strong>Nhân viên kinh doanh</strong><small>Hải Hà Hưng</small></div><span class="more">•••</span></div>
       </div>
-    </div>
-  </div>
+    </aside>
 
-  <!-- Template dòng -->
-  <template id="rowTpl">
-    <tr>
-      <td class="center serial">1</td>
-      <td>
-        <select class="sys" required>
-          <option value="">— Hệ —</option>
-        </select>
-      </td>
-      <td>
-        <select class="code" required>
-          <option value="">— Mã hàng —</option>
-        </select>
-      </td>
-      <td><input class="iname" placeholder="(Mô tả, quy cách)"/><select class="icolor" style="display:none"></select><input class="unit" type="hidden" value="Thanh"/></td>
-      <td class="right"><div class="qty-wrap"><button type="button" class="btn-qty qty-dec" aria-label="Giảm">−</button><input class="qty" type="number" min="1" value="1" inputmode="decimal" autocomplete="off"/><button type="button" class="btn-qty qty-inc" aria-label="Tăng">+</button></div></td>
-      <td class="right"><input class="price" type="number" min="0" step="1" placeholder="118000" inputmode="decimal" autocomplete="off"/></td>
-      <td class="right"><span class="total">—</span></td>
-      <td class="center"><button class="btn btn-danger btn-del" type="button">Xoá</button></td>
-    </tr>
-  </template>
-
-  <input type="file" id="importFile" accept=".xlsx,.csv,.json" hidden />
-
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="app.js"></script>
-
-  <!-- Modal chọn phụ kiện -->
-  <dialog id="pkModal">
-    <form method="dialog" class="pk-box">
-      <header class="pk-head">
-        <div class="pk-title">Chọn phụ kiện</div>
-        <button type="button" id="pkClose" class="pk-close" aria-label="Đóng">✕</button>
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumbs"><span>Kinh doanh</span><span class="crumb-sep">/</span><strong>Phiếu báo giá</strong></div>
+        <div class="top-actions"><span class="today" id="todayLabel"></span><button class="icon-button" title="Thông báo" aria-label="Thông báo">♧<i></i></button><div class="top-avatar"><img src="logo-hai-ha-hung.png" alt="Logo Hải Hà Hưng" /></div></div>
       </header>
-      <div class="pk-filter">
-        <label>Hệ:</label>
-        <select id="pkSystem"></select>
-        <input id="pkSearch" placeholder="Tìm nhanh phụ kiện..."/>
-      </div>
-      <div id="pkList" class="pk-list" role="listbox" aria-label="Danh sách phụ kiện"></div>
-      <footer class="pk-foot">
-        <button type="button" id="pkSelect" class="btn btn-primary">Thêm vào đơn</button>
-        <button value="cancel" class="btn btn-plain">Đóng</button>
-      </footer>
-    </form>
-  </dialog>
 
+      <section class="page-heading">
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span> QUẢN LÝ BÁN HÀNG</div><h1>Tạo phiếu báo giá</h1><p class="subtitle">Lập báo giá nhôm thanh và phụ kiện nhanh chóng, chính xác.</p></div>
+        <div class="heading-actions"><button class="btn btn-secondary" id="newQuoteBtn">＋ Báo giá mới</button><button class="btn btn-secondary" id="printQuoteBtn">▤ In / PDF</button><button class="btn btn-primary" id="saveQuoteBtn"><span>▣</span> Lưu báo giá</button></div>
+      </section>
+
+      <section class="stats-grid" aria-label="Thông tin báo giá">
+        <article class="stat-card"><div class="stat-top"><span>MÃ BÁO GIÁ</span><span class="stat-icon blue">▤</span></div><div class="stat-value" id="quoteCode">BG-261013-001</div><div class="stat-note">Mã tự tạo theo ngày</div></article>
+        <article class="stat-card"><div class="stat-top"><span>NGÀY BÁO GIÁ</span><span class="stat-icon violet">▦</span></div><div class="stat-value" id="quoteDateDisplay">13/10/2026</div><div class="stat-note">Hiệu lực <strong>15 ngày</strong> <span class="status-dot"></span></div></article>
+        <article class="stat-card"><div class="stat-top"><span>SỐ DÒNG SẢN PHẨM</span><span class="stat-icon orange">▥</span></div><div class="stat-value"><span id="lineCount">3</span> <small>dòng</small></div><div class="stat-note"><span id="aluminumCount">2</span> nhôm thanh · <span id="accessoryCount">1</span> phụ kiện</div></article>
+        <article class="stat-card total-stat"><div class="stat-top"><span>TỔNG THANH TOÁN</span><span class="stat-icon green">₫</span></div><div class="stat-value" id="totalCard">0 ₫</div><div class="stat-note">Đã bao gồm thuế và chiết khấu</div></article>
+      </section>
+
+      <section class="panel customer-panel">
+        <div class="panel-heading"><div class="panel-title-wrap"><div class="section-icon">♙</div><div><h2>Thông tin khách hàng</h2><p>Thông tin đơn vị nhận báo giá</p></div></div><span class="required-note"><span>*</span> Thông tin bắt buộc</span></div>
+        <div class="form-grid customer-grid">
+          <label class="field span-2"><span>Tên khách hàng / đơn vị <b>*</b></span><input id="customerName" placeholder="Nhập tên khách hàng hoặc công ty" value="Cơ sở sản xuất cửa Minh Phát" required /></label>
+          <label class="field"><span>Số điện thoại <b>*</b></span><input id="customerPhone" placeholder="VD: 0905 123 456" value="0905 123 456" /></label>
+          <label class="field"><span>Người liên hệ</span><input id="customerContact" placeholder="Tên người liên hệ" value="Anh Minh" /></label>
+          <label class="field span-2"><span>Địa chỉ</span><input id="customerAddress" placeholder="Số nhà, đường, phường/xã, tỉnh/thành" value="Điện Bàn, Đà Nẵng" /></label>
+          <label class="field"><span>Nhân viên phụ trách</span><select id="salesperson"><option>Nhân viên kinh doanh</option><option>Phòng kinh doanh</option><option>Quản lý bán hàng</option></select></label>
+          <label class="field"><span>Hiệu lực báo giá</span><select id="validity"><option value="7">7 ngày</option><option value="15" selected>15 ngày</option><option value="30">30 ngày</option></select></label>
+        </div>
+      </section>
+
+      <section class="panel products-panel">
+        <div class="panel-heading products-heading"><div class="panel-title-wrap"><div class="section-icon blue-bg">▤</div><div><h2>Chi tiết nhôm thanh</h2><p>Chọn mã hàng, màu sắc, quy cách và đơn giá</p></div></div><div class="heading-tools"><div class="search-box"><span>⌕</span><input id="productSearch" placeholder="Lọc dòng đã chọn theo mã, tên, hệ..." aria-label="Lọc dòng báo giá" /></div><button class="btn btn-primary btn-small" id="addAluminumBtn">＋ Thêm nhôm</button></div></div>
+        <div class="table-wrap"><table class="data-table" id="aluminumTable"><thead><tr><th class="col-no">#</th><th class="col-product">MÃ HÀNG / TÊN SẢN PHẨM</th><th>MÀU SẮC</th><th>QUY CÁCH</th><th class="align-right">SỐ LƯỢNG</th><th>ĐVT</th><th class="align-right">ĐƠN GIÁ (₫)</th><th class="align-right">THÀNH TIỀN (₫)</th><th></th></tr></thead><tbody id="aluminumRows"></tbody></table></div>
+        <div class="table-footer"><div class="data-hint"><span class="hint-icon">i</span> Đơn giá có thể chỉnh sửa trực tiếp. Thành tiền tự động cập nhật.</div><button class="text-button" id="clearAluminumBtn">Xóa tất cả dòng</button></div>
+      </section>
+
+      <section class="panel accessories-panel">
+        <div class="panel-heading"><div class="panel-title-wrap"><div class="section-icon amber-bg">⚙</div><div><h2>Phụ kiện đi kèm <span class="optional-tag">TÙY CHỌN</span></h2><p>Thêm phụ kiện vào báo giá nếu khách hàng có nhu cầu</p></div></div><label class="switch-label"><span>Bao gồm phụ kiện</span><input type="checkbox" id="includeAccessories" checked /><span class="switch"></span></label></div>
+        <div id="accessoriesContent"><div class="table-wrap"><table class="data-table accessory-table"><thead><tr><th class="col-no">#</th><th>MÃ HÀNG / TÊN PHỤ KIỆN</th><th>NHÓM PHỤ KIỆN</th><th class="align-right">SỐ LƯỢNG</th><th>ĐVT</th><th class="align-right">ĐƠN GIÁ (₫)</th><th class="align-right">THÀNH TIỀN (₫)</th><th></th></tr></thead><tbody id="accessoryRows"></tbody></table></div><div class="table-footer"><div class="data-hint"><span class="hint-icon">i</span> Phụ kiện không bắt buộc; bỏ chọn để loại khỏi tổng báo giá.</div><button class="btn btn-outline btn-small" id="addAccessoryBtn">＋ Thêm phụ kiện</button></div></div>
+        <div class="accessory-disabled hidden" id="accessoryDisabled"><span class="disabled-icon">⚙</span><div><strong>Chưa bao gồm phụ kiện</strong><p>Bật công tắc để thêm phụ kiện vào phiếu báo giá.</p></div></div>
+      </section>
+
+      <section class="bottom-grid">
+        <div class="panel notes-panel"><div class="panel-heading compact-heading"><div class="panel-title-wrap"><div class="section-icon">☷</div><div><h2>Ghi chú & điều khoản</h2><p>Thông tin bổ sung trên phiếu báo giá</p></div></div></div><label class="field"><span>Ghi chú cho khách hàng</span><textarea id="quoteNotes" rows="3" placeholder="VD: Hàng có sẵn theo tồn kho, vui lòng xác nhận màu trước khi đặt...">Giá áp dụng theo số lượng trong báo giá. Vui lòng xác nhận màu sắc và quy cách trước khi đặt hàng.</textarea></label><div class="terms-row"><label class="field"><span>Thời gian giao hàng</span><input id="deliveryTime" value="Theo thỏa thuận" /></label><label class="field"><span>Điều khoản thanh toán</span><select id="paymentTerms"><option>Thanh toán khi nhận hàng</option><option>Đặt cọc 30%, thanh toán còn lại khi giao hàng</option><option>Theo thỏa thuận</option></select></label></div></div>
+        <div class="panel totals-panel"><div class="panel-heading compact-heading"><div class="panel-title-wrap"><div class="section-icon green-bg">₫</div><div><h2>Tổng hợp thanh toán</h2><p>Giá trị đơn hàng</p></div></div></div>
+          <div class="totals-lines"><div class="total-line"><span>Tổng nhôm thanh</span><strong id="aluminumSubtotal">0 ₫</strong></div><div class="total-line"><span>Tổng phụ kiện</span><strong id="accessorySubtotal">0 ₫</strong></div><div class="total-line"><label for="discountType">Chiết khấu</label><div class="inline-money"><input id="discountValue" type="number" min="0" value="0" /><select id="discountType" aria-label="Loại chiết khấu"><option value="percent">%</option><option value="amount">₫</option></select></div></div><div class="total-line muted-line"><span>Tiền chiết khấu</span><strong id="discountAmount">0 ₫</strong></div><div class="total-line"><label for="vatRate">Thuế VAT</label><div class="inline-money vat-control"><select id="vatRate"><option value="0">0%</option><option value="5">5%</option><option value="8" selected>8%</option><option value="10">10%</option></select></div></div><div class="total-line muted-line"><span>Tiền VAT</span><strong id="vatAmount">0 ₫</strong></div></div>
+          <div class="grand-total"><div><span>TỔNG THANH TOÁN</span><small>Đơn vị: Việt Nam đồng (VND)</small></div><strong id="grandTotal">0 ₫</strong></div><div class="amount-words" id="amountWords">Bằng chữ: Không đồng.</div>
+        </div>
+      </section>
+
+      <footer class="page-footer"><div><strong>HẢI HÀ HƯNG</strong><span> · Giải pháp nhôm thanh & phụ kiện</span></div><div>© <span id="yearLabel">2026</span> Hải Hà Hưng <span class="footer-sep">•</span> Phiếu báo giá nội bộ</div></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="modal-backdrop hidden" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal"><div class="modal-head"><div><h2 id="modalTitle">Chọn sản phẩm</h2><p id="modalSubtitle">Tìm theo mã hàng, tên hàng hoặc hệ nhôm; chọn sản phẩm để tự điền thông tin.</p></div><button class="icon-button close-modal" id="closeModal" aria-label="Đóng">×</button></div><div class="modal-search"><span>⌕</span><input id="modalSearch" placeholder="Tìm mã hàng, tên hàng hoặc hệ nhôm..." /></div><div class="modal-list" id="modalList"></div><div class="modal-foot"><span id="catalogStatus">Có thể nhập sản phẩm thủ công nếu chưa có danh mục.</span><button class="btn btn-secondary" id="manualProductBtn">＋ Nhập thủ công</button></div></div></div>
+  <script src="app.js"></script>
 </body>
 </html>
