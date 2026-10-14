@@ -58,9 +58,9 @@
     }
     const subtotal=num(totals.subtotal) || num(totals.aluminumTotal)+num(totals.accessoryTotal);
     const discount=num(totals.discount ?? p.discount?.amount);
-    const vatRate=num(p.vatRate);
+    const vatRate=p.vatEnabled===false?0:num(p.vatRate);
     const taxable=Math.max(0,subtotal-discount);
-    const vat=num(totals.vat) || taxable*vatRate/100;
+    const vat=p.vatEnabled===false?0:(num(totals.vat) || taxable*vatRate/100);
     const grand=num(totals.grand) || taxable+vat;
     set('subtotal',money(subtotal));set('discount',money(discount));set('vatRate',vatRate);
     const discountLabel=$('discountLabel');if(discountLabel)discountLabel.textContent=p.discount?.accessoriesOnly?'Chiết khấu phụ kiện':'Chiết khấu';

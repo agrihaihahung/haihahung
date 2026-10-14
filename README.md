@@ -55,8 +55,6 @@ Nút **Lưu vào Drive** cần một Google Apps Script Web App để lưu PDF v
 3. Chọn **Deploy > New deployment > Web app**; Execute as: **Me**; Who has access: chọn mức phù hợp với chính sách tài khoản (thường là **Anyone** để ứng dụng web có thể gửi yêu cầu).
 4. Cấp quyền truy cập Drive khi Google yêu cầu và triển khai. Sao chép URL Web App kết thúc bằng `/exec`.
 5. Trong ứng dụng, bấm **Lưu vào Drive** và dán URL `/exec` lần đầu. URL được lưu trong localStorage của trình duyệt.
-
-https://script.google.com/macros/s/AKfycbxYYUlabgGRUe1gm-2XsqOUpfgBo72RTKczdxzutpERsD5CF4u6LW32JA-8TurRq_Lo/exec
 6. Lần đầu bấm nút, nhập URL `/exec` và giá trị `SAVE_TOKEN`; ứng dụng lưu hai giá trị trong localStorage của trình duyệt. Mỗi lần lưu sẽ tạo một file PDF và một file JSON mang mã báo giá trong thư mục Drive đã cấu hình. Nếu đổi token, xóa khóa `haihahung_drive_save_token` trong localStorage hoặc xóa dữ liệu trang để nhập lại.
 
 **Bảo mật:** Web App cần quyền tạo file trong Drive. Hãy đặt `SAVE_TOKEN` và chỉ chia sẻ URL Web App cùng token với người dùng đáng tin cậy và tuân thủ chính sách Google Workspace của doanh nghiệp. Nếu chính sách không cho phép truy cập `Anyone`, cần triển khai cơ chế xác thực phù hợp trước khi sử dụng thực tế.

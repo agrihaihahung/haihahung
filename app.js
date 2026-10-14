@@ -39,7 +39,7 @@
       <td><input class="cell-input" style="min-width:110px" data-field="group" aria-label="Nhóm phụ kiện" value="${escapeHtml(item.group || 'Phụ kiện cửa')}" /></td>
       <td class="align-right"><input class="cell-input qty-input" data-field="qty" type="number" min="0" step="any" aria-label="Số lượng" value="${Number(item.qty)||0}" /></td><td><span class="unit-cell">${escapeHtml(item.unit || 'Cái')}</span></td>
       <td class="align-right"><input class="cell-input price-input" data-field="price" type="number" min="0" step="100" aria-label="Đơn giá" value="${Number(item.price)||0}" /></td>
-      <td class="money-cell" data-total>${money((Number(item.qty)||0)*(Number(item.price)||0))}</td><td><button class="delete-row" data-delete="${item.id}" title="Xóa dòng" aria-label="Xóa dòng">×</button></td></tr>`).join('');
+      <td class="money-cell" data-total>${money((Number(item.qty)||0)*(Number(item.price)||0))}</td><td class="discount-check-cell"><input type="checkbox" data-discount-item="${item.id}" ${item.discountEligible ? 'checked' : ''} aria-label="Chiết khấu phụ kiện ${escapeHtml(item.name || item.code || '')}" title="Đánh dấu để áp dụng chiết khấu cho dòng này" /></td><td><button class="delete-row" data-delete="${item.id}" title="Xóa dòng" aria-label="Xóa dòng">×</button></td></tr>`).join('');
     $('#aluminumCount').textContent = state.aluminum.length;
     $('#accessoryCount').textContent = $('#includeAccessories').checked ? state.accessories.length : 0;
     $('#lineCount').textContent = state.aluminum.length + ($('#includeAccessories').checked ? state.accessories.length : 0);
@@ -60,10 +60,15 @@
     const subtotal = aluminumTotal + accessoryTotal;
     const rawDiscount = Math.max(0, Number($('#discountValue').value)||0);
     const accessoriesOnlyDiscount = $('#discountAccessoriesOnly')?.checked === true;
-    const discountBase = accessoriesOnlyDiscount ? accessoryTotal : subtotal;
+    const checkedAccessories = $('#includeAccessories').checked ? state.accessories.filter(x => x.discountEligible) : [];
+    const selectedAccessoryBase = checkedAccessories.reduce((s,x)=>s+(Number(x.qty)||0)*(Number(x.price)||0),0);
+    // Nếu có phụ kiện được tick CK, chỉ chiết khấu các dòng đó; nếu chưa tick dòng nào thì giữ cách tính cũ.
+    const hasSelectedAccessoryDiscount = checkedAccessories.length > 0;
+    const discountBase = hasSelectedAccessoryDiscount ? selectedAccessoryBase : (accessoriesOnlyDiscount ? accessoryTotal : subtotal);
     const discount = Math.min(discountBase, $('#discountType').value === 'percent' ? discountBase * Math.min(rawDiscount,100)/100 : rawDiscount);
     const taxable = Math.max(0, subtotal - discount);
-    const vat = taxable * (Number($('#vatRate').value)||0) / 100;
+    const vatEnabled = $('#vatEnabled')?.checked === true;
+    const vat = vatEnabled ? taxable * (Number($('#vatRate').value)||0) / 100 : 0;
     const grand = taxable + vat;
     $('#aluminumSubtotal').textContent = money(aluminumTotal);
     $('#accessorySubtotal').textContent = money(accessoryTotal);
@@ -112,12 +117,15 @@
     $('#productSearch').addEventListener('input',applyProductFilter);
     $('#includeAccessories').addEventListener('change',()=>{const on=$('#includeAccessories').checked;$('#accessoriesContent').classList.toggle('hidden',!on);$('#accessoryDisabled').classList.toggle('hidden',on);calculate()});
     ['discountValue','discountType','vatRate'].forEach(id=>$('#'+id).addEventListener('input',calculate));
+    $('#vatEnabled')?.addEventListener('change',()=>{const enabled=$('#vatEnabled').checked;$('#vatRate').disabled=!enabled;$('#vatRate').closest('.total-line')?.classList.toggle('vat-disabled',!enabled);calculate()});
+    $('#accessoryRows').addEventListener('change',e=>{const cb=e.target.closest('[data-discount-item]');if(!cb)return;const item=state.accessories.find(x=>x.id===cb.dataset.discountItem);if(item)item.discountEligible=cb.checked;calculate()});
     $('#discountAccessoriesOnly')?.addEventListener('change',calculate);
     ['aluminumRows','accessoryRows'].forEach(id=>$('#'+id).addEventListener('input',e=>{if(e.target.matches('[data-field]'))calculate()}));
     ['aluminumRows','accessoryRows'].forEach(id=>$('#'+id).addEventListener('click',e=>{const b=e.target.closest('[data-delete]');if(!b)return;const kind=id==='aluminumRows'?'aluminum':'accessories';state[kind]=state[kind].filter(x=>x.id!==b.dataset.delete);renderRows();calculate()}));
     $('#clearAluminumBtn').addEventListener('click',()=>{if(!state.aluminum.length)return;state.aluminum=[];renderRows();calculate();notify('Đã xóa toàn bộ dòng nhôm thanh.')});
     $('#newQuoteBtn').addEventListener('click',newQuote);
     $('#saveQuoteBtn').addEventListener('click',saveQuote);
+    $('#exportExcelBtn').addEventListener('click',exportQuoteExcel);
     $('#printQuoteBtn').addEventListener('click',()=>{const payload=buildQuotePayload();try{persistQuote(payload);localStorage.setItem('haihahung_quote_print',JSON.stringify(payload));window.open('print.html','_blank')}catch(err){notify('Không thể lưu/mở bản in. Hãy kiểm tra dung lượng lưu trữ hoặc cho phép cửa sổ bật lên.')}});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePicker();closeCustomerPicker();}if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveQuote();}});
   }
@@ -344,13 +352,71 @@
   }
   function newQuote() {
     if(!confirm('Tạo phiếu báo giá mới? Các dòng hiện tại sẽ được làm mới.'))return;
-    state.aluminum=[];state.accessories=[];renderRows();$('#customerSelect').value='';$('#selectedCustomerLabel').textContent='— Chọn khách hàng trong danh mục —';$('#customerName').value='';$('#customerPhone').value='';$('#customerContact').value='';$('#customerAddress').value='';$('#quoteNotes').value='';$('#discountValue').value='0';$('#discountType').value='percent';if($('#discountAccessoriesOnly'))$('#discountAccessoriesOnly').checked=false;$('#vatRate').value='8';$('#includeAccessories').checked=true;$('#includeAccessories').dispatchEvent(new Event('change'));
+    state.aluminum=[];state.accessories=[];renderRows();$('#customerSelect').value='';$('#selectedCustomerLabel').textContent='— Chọn khách hàng trong danh mục —';$('#customerName').value='';$('#customerPhone').value='';$('#customerContact').value='';$('#customerAddress').value='';$('#quoteNotes').value='';$('#discountValue').value='0';$('#discountType').value='percent';if($('#discountAccessoriesOnly'))$('#discountAccessoriesOnly').checked=false;$('#vatRate').value='8';if($('#vatEnabled')){$('#vatEnabled').checked=false;$('#vatRate').disabled=true;}$('#includeAccessories').checked=true;$('#includeAccessories').dispatchEvent(new Event('change'));
     const seq=String(Date.now()).slice(-3);$('#quoteCode').textContent=`BG-${String(today.getFullYear()).slice(-2)}${pad(today.getMonth()+1)}${pad(today.getDate())}-${seq}`;calculate();notify('Đã tạo phiếu báo giá mới.');
   }
   function buildQuotePayload() {
     const sums=calculate();
-    return {company:{name:'CÔNG TY TNHH KINH DOANH TỔNG HỢP HẢI HÀ HƯNG'},quote:{code:$('#quoteCode').textContent,date:fmtDateISO(new Date()),validityDays:Number($('#validity').value)||15,salesperson:$('#salesperson').value},customer:{name:$('#customerName').value.trim(),phone:$('#customerPhone').value,contact:$('#customerContact').value,address:$('#customerAddress').value},aluminum:state.aluminum.map(x=>({...x})),accessoriesIncluded:$('#includeAccessories').checked,accessories:state.accessories.map(x=>({...x})),discount:{type:$('#discountType').value,value:Number($('#discountValue').value)||0,amount:sums.discount,accessoriesOnly:$('#discountAccessoriesOnly')?.checked===true},vatRate:Number($('#vatRate').value)||0,totals:sums,notes:$('#quoteNotes').value,deliveryTime:$('#deliveryTime').value,paymentTerms:$('#paymentTerms').value,savedAt:new Date().toISOString()};
+    return {company:{name:'CÔNG TY TNHH KINH DOANH TỔNG HỢP HẢI HÀ HƯNG'},quote:{code:$('#quoteCode').textContent,date:fmtDateISO(new Date()),validityDays:Number($('#validity').value)||15,salesperson:$('#salesperson').value},customer:{name:$('#customerName').value.trim(),phone:$('#customerPhone').value,contact:$('#customerContact').value,address:$('#customerAddress').value},aluminum:state.aluminum.map(x=>({...x})),accessoriesIncluded:$('#includeAccessories').checked,accessories:state.accessories.map(x=>({...x})),discount:{type:$('#discountType').value,value:Number($('#discountValue').value)||0,amount:sums.discount,accessoriesOnly:$('#discountAccessoriesOnly')?.checked===true,selectedAccessoryIds:state.accessories.filter(x=>x.discountEligible).map(x=>x.id)},vatEnabled:$('#vatEnabled')?.checked===true,vatRate:$('#vatEnabled')?.checked?(Number($('#vatRate').value)||0):0,totals:sums,notes:$('#quoteNotes').value,deliveryTime:$('#deliveryTime').value,paymentTerms:$('#paymentTerms').value,savedAt:new Date().toISOString()};
   }
+
+  // Xuất workbook Excel XML (SpreadsheetML 2003): không phụ thuộc CDN/thư viện ngoài,
+  // tải trực tiếp về máy và mở được bằng Microsoft Excel/LibreOffice.
+  function exportQuoteExcel() {
+    try {
+      const p = buildQuotePayload();
+      const q = p.quote || {}, c = p.customer || {}, t = p.totals || {};
+      const n = v => Number(v) || 0;
+      const fmtDate = v => { if (!v) return ''; const d = new Date(v + (String(v).length === 10 ? 'T00:00:00' : '')); return Number.isNaN(d.getTime()) ? String(v) : dateString(d); };
+      const escXml = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+      const cell = (value, type) => `<Cell><Data ss:Type="${type || (typeof value === 'number' ? 'Number' : 'String')}">${escXml(value)}</Data></Cell>`;
+      const row = values => `<Row>${values.map(v => Array.isArray(v) ? cell(v[0],v[1]) : cell(v)).join('')}</Row>`;
+      const sheet = (name, rows) => `<Worksheet ss:Name="${escXml(name)}"><Table>${rows.join('')}</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>1</SplitHorizontal><TopRowBottomPane>1</TopRowBottomPane></WorksheetOptions></Worksheet>`;
+      const al = Array.isArray(p.aluminum) ? p.aluminum : [];
+      const ac = p.accessoriesIncluded === false ? [] : (Array.isArray(p.accessories) ? p.accessories : []);
+      const alRows = [row(['STT','Hệ','Mã hàng','Tên hàng','Màu sắc','Quy cách','ĐVT','Số lượng','Kg/thanh','Tổng khối lượng (kg)','Đơn giá (đ/kg)','Thành tiền (đ)'])];
+      al.forEach((x,i) => alRows.push(row([[i+1,'Number'],x.system||'',x.code||'',x.name||'',x.color||'',x.spec||'',x.unit||'Thanh',[n(x.qty),'Number'],[n(x.weight),'Number'],[n(x.qty)*n(x.weight),'Number'],[n(x.price),'Number'],[n(x.qty)*n(x.weight)*n(x.price),'Number']])));
+      const acRows = [row(['STT','Mã hàng','Tên phụ kiện','Nhóm phụ kiện','ĐVT','Số lượng','Đơn giá (đ)','Thành tiền (đ)'])];
+      ac.forEach((x,i) => acRows.push(row([[i+1,'Number'],x.code||'',x.name||'',x.group||x.spec||'',x.unit||'Cái',[n(x.qty),'Number'],[n(x.price),'Number'],[n(x.qty)*n(x.price),'Number']])));
+      const summaryRows = [
+        row(['PHIẾU BÁO GIÁ - HẢI HÀ HƯNG']),
+        row(['Công ty',p.company?.name||'CÔNG TY TNHH KINH DOANH TỔNG HỢP HẢI HÀ HƯNG']),
+        row(['Số báo giá',q.code||'']), row(['Ngày báo giá',fmtDate(q.date)]),
+        row(['Khách hàng',c.name||'']), row(['Điện thoại',c.phone||'']),
+        row(['Người liên hệ',c.contact||'']), row(['Địa chỉ',c.address||'']),
+        row(['Nhân viên phụ trách',q.salesperson||'']), row(['Hiệu lực (ngày)',[n(q.validityDays),'Number']]),
+        row(['Tổng nhôm thanh (đ)',[n(t.aluminumTotal),'Number']]),
+        row(['Tổng phụ kiện (đ)',[p.accessoriesIncluded===false?0:n(t.accessoryTotal),'Number']]),
+        row(['Tạm tính (đ)',[n(t.subtotal),'Number']]),
+        row(['Chiết khấu (đ)',[n(p.discount?.amount ?? t.discount),'Number']]),
+        row(['VAT (%)',[n(p.vatRate),'Number']]), row(['Tiền VAT (đ)',[n(t.vat),'Number']]),
+        row(['TỔNG THANH TOÁN (đ)',[n(t.grand),'Number']]),
+        row(['Thời gian giao hàng',p.deliveryTime||'']), row(['Điều khoản thanh toán',p.paymentTerms||'']),
+        row(['Ghi chú',p.notes||''])
+      ];
+      const paymentRows = [
+        row(['Nội dung','Giá trị']),
+        row(['Tổng nhôm thanh (đ)',[n(t.aluminumTotal),'Number']]),
+        row(['Tổng phụ kiện (đ)',[p.accessoriesIncluded===false?0:n(t.accessoryTotal),'Number']]),
+        row(['Tạm tính (đ)',[n(t.subtotal),'Number']]),
+        row(['Chiết khấu (đ)',[n(p.discount?.amount ?? t.discount),'Number']]),
+        row(['Thuế VAT (%)',[n(p.vatRate),'Number']]),
+        row(['Tiền VAT (đ)',[n(t.vat),'Number']]),
+        row(['TỔNG THANH TOÁN (đ)',[n(t.grand),'Number']])
+      ];
+      const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40"><Styles><Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="10"/></Style></Styles>${sheet('Báo giá',summaryRows)}${sheet('Nhôm thanh',alRows)}${sheet('Phụ kiện',acRows)}${sheet('Thanh toán',paymentRows)}</Workbook>`;
+      const blob = new Blob(['\ufeff',xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download=`${(q.code||'Bao_gia_Hai_Ha_Hung').replace(/[^\w.-]+/g,'_')}.xls`;
+      a.style.display='none'; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1500);
+      notify('Đã xuất file Excel báo giá. Kiểm tra thư mục Tải xuống (Downloads).');
+    } catch (err) {
+      console.error('Export Excel error:',err);
+      notify('Xuất Excel chưa thành công. Vui lòng thử lại hoặc kiểm tra quyền tải xuống của trình duyệt.');
+    }
+  }
+
   function persistQuote(payload) {
     const key='haihahung_quote_history';
     const history=JSON.parse(localStorage.getItem(key)||'[]');

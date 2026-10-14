@@ -88,3 +88,12 @@
 .customer-catalog-item{min-height:58px}
 .customer-catalog-item .catalog-info small{line-height:1.55;white-space:normal;overflow-wrap:anywhere}
 @media(max-width:850px){.customer-search{margin:12px 16px}.customer-picker-trigger{height:40px}.customer-select-field{width:100%}.heading-actions{flex-wrap:wrap}.heading-actions .btn{flex:1 1 auto}}
+
+/* VAT toggle and per-accessory discount selection */
+.vat-control { gap: 10px; align-items: center; }
+.vat-toggle { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; font-size: 12px; cursor: pointer; }
+.vat-toggle input { accent-color: #2563eb; }
+#vatRate:disabled { opacity: .5; cursor: not-allowed; }
+.vat-disabled { opacity: .78; }
+.discount-check-head, .discount-check-cell { text-align: center; width: 48px; }
+.discount-check-cell input { width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; }
