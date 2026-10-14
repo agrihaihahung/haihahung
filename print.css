@@ -10,9 +10,9 @@ body{margin:0;color:var(--ink);font:10px/1.45 Calibri,"Segoe UI",Arial,sans-seri
 .btn{border:0;border-radius:7px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer}
 .btn-light{background:#f1f5f9;color:#334155}.btn-primary{background:var(--blue);color:#fff}
 .paper{width:277mm;min-height:190mm;margin:0 auto 20px;padding:0;background:#fff}
-.company-header{display:grid;grid-template-columns:62px 1fr 155px;gap:13px;align-items:center;padding:0 0 10px;border-bottom:2px solid var(--navy)}
-.brand-mark{width:56px;height:56px;border-radius:12px;background:linear-gradient(145deg,#12345a,#2478b7);color:white;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;letter-spacing:-1px;box-shadow:inset 0 0 0 1px #ffffff35}
-.company-info .eyebrow{font-size:8px;letter-spacing:2px;font-weight:800;color:var(--blue);margin-bottom:3px}
+.company-header{display:grid;grid-template-columns:minmax(0,1fr) 66px 155px;gap:9px;align-items:center;padding:0 0 10px;border-bottom:2px solid var(--navy)}
+.brand-mark{width:64px;height:64px;border-radius:12px;background:linear-gradient(145deg,#12345a,#2478b7);color:white;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;letter-spacing:-1px;box-shadow:inset 0 0 0 1px #ffffff35}
+.company-info{text-align:center;min-width:0}.company-info .eyebrow{font-size:8px;letter-spacing:2px;font-weight:800;color:var(--blue);margin-bottom:3px}
 .company-info h1{font-size:15px;line-height:1.2;margin:0 0 5px;color:var(--navy);font-weight:800}
 .company-info p{font-size:9px;margin:1px 0;color:#526173}
 .separator{padding:0 5px;color:#94a3b8}
@@ -65,7 +65,7 @@ body{margin:0;color:var(--ink);font:10px/1.45 Calibri,"Segoe UI",Arial,sans-seri
 .sign-space{height:28px}
 .paper-footer{border-top:1px solid var(--line);padding-top:5px;display:flex;justify-content:space-between;color:#94a3b8;font-size:7px;letter-spacing:.7px}
 .paper-footer b{color:var(--blue);padding:0 3px}
-@media screen and (max-width:900px){.paper{width:calc(100% - 24px);padding:14px;overflow-x:auto}.company-header{grid-template-columns:48px 1fr}.brand-mark{width:44px;height:44px}.quote-stamp{grid-column:2;border-left:0;padding-left:0}.customer-grid{grid-template-columns:1fr 1fr}.customer-field.wide{grid-column:span 2}.quote-table{min-width:850px}.bottom-grid{grid-template-columns:1fr}.toolbar{margin:8px 12px}}
+@media screen and (max-width:900px){.paper{width:calc(100% - 24px);padding:14px;overflow-x:auto}.company-header{grid-template-columns:minmax(0,1fr) 52px 125px;gap:7px}.brand-mark{width:50px;height:50px}.quote-stamp{grid-column:auto;border-left:1px solid var(--line);padding-left:8px}.company-info h1{font-size:12px}.company-info p{font-size:8px}.customer-grid{grid-template-columns:1fr 1fr}.customer-field.wide{grid-column:span 2}.quote-table{min-width:850px}.bottom-grid{grid-template-columns:1fr}.toolbar{margin:8px 12px}}
 @media print{html,body{background:#fff}.toolbar,.no-print{display:none!important}.paper{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}.company-header,.customer-panel,.table-section,.bottom-grid,.signatures{break-inside:avoid}.quote-table thead{display:table-header-group}.quote-table tr{break-inside:avoid}.paper-footer{position:static}}
 
 
@@ -137,3 +137,84 @@ body { font-size: 11px; line-height: 1.35; }
 .quote-table:has(#accessoryBody) th:nth-child(7), .quote-table:has(#accessoryBody) td:nth-child(7) { text-align: right; }
 .quote-table:has(#aluminumBody) th:nth-child(11), .quote-table:has(#aluminumBody) td:nth-child(11),
 .quote-table:has(#accessoryBody) th:nth-child(8), .quote-table:has(#accessoryBody) td:nth-child(8) { text-align: right; }
+
+/* Căn giữa khối thông tin công ty ở đầu phiếu in */
+.company-info{text-align:center}.company-info h1{margin-left:auto;margin-right:auto}.company-info p{margin-left:auto;margin-right:auto}
+
+
+/* Header A4: căn giữa thông tin công ty theo toàn bộ chiều rộng trang,
+   không căn theo phần không gian còn lại giữa logo và mã báo giá. */
+.company-header{
+  display:block;
+  position:relative;
+  min-height:70px;
+  padding:0 0 8px;
+}
+.company-info{
+  position:absolute;
+  left:50%;
+  top:0;
+  transform:translateX(-50%);
+  width:72%;
+  min-width:0;
+  text-align:center;
+  z-index:1;
+}
+.company-info .eyebrow,
+.company-info h1,
+.company-info p{
+  text-align:center;
+  margin-left:auto;
+  margin-right:auto;
+}
+.brand-mark{
+  position:absolute;
+  right:164px;
+  top:4px;
+  width:64px;
+  height:64px;
+  margin:0;
+  z-index:2;
+}
+.quote-stamp{
+  position:absolute;
+  right:0;
+  top:0;
+  width:155px;
+  min-height:52px;
+  border-left:1px solid var(--line);
+  padding:0 0 0 14px;
+  z-index:2;
+}
+@media screen and (max-width:900px){
+  .company-header{display:block;min-height:82px;padding-bottom:8px}
+  .company-info{left:0;top:0;transform:none;width:calc(100% - 175px);text-align:center}
+  .company-info h1{font-size:12px}
+  .company-info p{font-size:8px}
+  .brand-mark{right:132px;top:20px;width:44px;height:44px}
+  .quote-stamp{right:0;top:0;width:122px;padding-left:8px}
+}
+@media print{
+  .company-header{display:block;position:relative;min-height:70px}
+  .company-info{left:50%;top:0;transform:translateX(-50%);width:72%}
+  .brand-mark{position:absolute;right:164px;top:4px;width:64px;height:64px}
+  .quote-stamp{position:absolute;right:0;top:0;width:155px}
+}
+
+
+/* Summary rows: use a wider value area and keep both tables visually consistent. */
+.quote-table tfoot .summary-label{
+  text-align:right;
+  white-space:normal;
+}
+.quote-table tfoot .summary-amount{
+  width:auto !important;
+  min-width:0;
+  white-space:nowrap;
+  text-align:right;
+  font-weight:800;
+}
+.quote-table:has(#accessoryBody) th:nth-child(7),
+.quote-table:has(#accessoryBody) td:nth-child(7){width:8%}
+.quote-table:has(#accessoryBody) th:nth-child(8),
+.quote-table:has(#accessoryBody) td:nth-child(8){width:21%}

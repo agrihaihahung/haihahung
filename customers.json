@@ -1,0 +1,10 @@
+[
+  {
+    "id": "KH-DEMO-001",
+    "name": "Cơ sở sản xuất cửa Minh Phát",
+    "phone": "0905 123 456",
+    "contact": "Anh Minh",
+    "address": "Điện Bàn, Đà Nẵng",
+    "note": "Dữ liệu mẫu ban đầu; chỉnh sửa customers.json để thay bằng danh sách khách hàng thực tế."
+  }
+]

@@ -17,13 +17,13 @@
 
   <main class="paper">
     <header class="company-header">
-      <div class="brand-mark" aria-label="Hải Hà Hưng"><img src="logo-hai-ha-hung.png" alt="Logo Hải Hà Hưng"></div>
       <div class="company-info">
         <div class="eyebrow">BÁO GIÁ SẢN PHẨM</div>
         <h1>CÔNG TY TNHH KINH DOANH TỔNG HỢP HẢI HÀ HƯNG</h1>
         <p>Địa chỉ: QL1A, Xã Thăng Bình, TP Đà Nẵng</p>
         <p>Điện thoại: 0918 210 031 <span class="separator">•</span> Email: mailcv.30@gmail.com</p>
       </div>
+      <div class="brand-mark" aria-label="Hải Hà Hưng"><img src="logo-hai-ha-hung.png" alt="Logo Hải Hà Hưng"></div>
       <div class="quote-stamp">
         <span>MÃ BÁO GIÁ</span>
         <strong id="quoteCode">BG-YYYYMMDD-001</strong>
@@ -57,7 +57,7 @@
           <th class="num qty">SỐ LƯỢNG</th><th class="num weight-col">KG/THANH</th><th class="num kg-total-col">TỔNG KL</th><th class="num price">ĐƠN GIÁ</th><th class="num total">THÀNH TIỀN</th>
         </tr></thead>
         <tbody id="aluminumBody"></tbody>
-        <tfoot><tr><td colspan="10" class="summary-label">CỘNG NHÔM THANH</td><td class="num" id="aluminumTotal">0 ₫</td></tr></tfoot>
+        <tfoot><tr><td colspan="8" class="summary-label">TỔNG KHỐI LƯỢNG NHÔM</td><td class="num" id="aluminumWeightTotal">0 kg</td><td colspan="2"></td></tr><tr><td colspan="8" class="summary-label">THÀNH TIỀN NHÔM THANH</td><td colspan="3" class="num summary-amount" id="aluminumTotal">0 ₫</td></tr></tfoot>
       </table>
       <div class="empty-state" id="aluminumEmpty">Chưa có sản phẩm nhôm thanh.</div>
     </section>
@@ -71,7 +71,7 @@
           <th class="num qty">SL</th><th class="num price">ĐƠN GIÁ</th><th class="num total">THÀNH TIỀN</th>
         </tr></thead>
         <tbody id="accessoryBody"></tbody>
-        <tfoot><tr><td colspan="7" class="summary-label">CỘNG PHỤ KIỆN</td><td class="num" id="accessoryTotal">0 ₫</td></tr></tfoot>
+        <tfoot><tr><td colspan="6" class="summary-label">THÀNH TIỀN PHỤ KIỆN</td><td colspan="2" class="num summary-amount" id="accessoryTotal">0 ₫</td></tr></tfoot>
       </table>
       <div class="empty-state" id="accessoryEmpty">Không bao gồm phụ kiện trong báo giá này.</div>
     </section>
@@ -86,7 +86,7 @@
       </div>
       <div class="totals-card">
         <div class="total-row"><span>Tổng tiền hàng</span><strong id="subtotal">0 ₫</strong></div>
-        <div class="total-row"><span>Chiết khấu</span><strong id="discount">0 ₫</strong></div>
+        <div class="total-row"><span id="discountLabel">Chiết khấu</span><strong id="discount">0 ₫</strong></div>
         <div class="total-row"><span>Thuế VAT (<b id="vatRate">0</b>%)</span><strong id="vatAmount">0 ₫</strong></div>
         <div class="grand-row"><span>TỔNG THANH TOÁN</span><strong id="grandTotal">0 ₫</strong></div>
         <div class="amount-words"><span>Số tiền bằng chữ</span><strong id="amountWords">—</strong></div>

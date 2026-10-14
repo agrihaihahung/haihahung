@@ -47,6 +47,8 @@
     $('aluminumBody').innerHTML=aluminum.map((x,i)=>row(x,i,'aluminum')).join('');
     $('aluminumEmpty').style.display=aluminum.length?'none':'block';
     $('aluminumTotal').textContent=money(totals.aluminumTotal ?? aluminum.reduce((s,x)=>s+num(x.qty)*num(x.weight)*num(x.price),0));
+    const totalAluminumWeight=aluminum.reduce((s,x)=>s+num(x.qty)*num(x.weight),0);
+    $('aluminumWeightTotal').textContent=new Intl.NumberFormat('vi-VN',{maximumFractionDigits:3}).format(totalAluminumWeight)+' kg';
     const include=p.accessoriesIncluded!==false;
     $('accessorySection').hidden=!include;
     if(include) {
@@ -61,6 +63,7 @@
     const vat=num(totals.vat) || taxable*vatRate/100;
     const grand=num(totals.grand) || taxable+vat;
     set('subtotal',money(subtotal));set('discount',money(discount));set('vatRate',vatRate);
+    const discountLabel=$('discountLabel');if(discountLabel)discountLabel.textContent=p.discount?.accessoriesOnly?'Chiết khấu phụ kiện':'Chiết khấu';
     set('vatAmount',money(vat));set('grandTotal',money(grand));set('amountWords',numberWords(Math.round(grand)));
   }
   $('printBtn').addEventListener('click',()=>window.print());
