@@ -22,7 +22,7 @@
     $('#quoteCode').textContent = `BG-${String(today.getFullYear()).slice(-2)}${pad(today.getMonth()+1)}${pad(today.getDate())}-001`;
     state.aluminum = [];
     state.accessories = [];
-    renderRows(); calculate(); bindEvents(); loadCatalog(); loadCustomers();
+    renderRows(); calculate(); bindEvents(); restoreDraft(); loadCatalog(); loadCustomers();
   }
   function uid() { return Math.random().toString(36).slice(2, 10); }
   function renderRows() {
@@ -58,20 +58,22 @@
     const aluminumTotal = state.aluminum.reduce((s,x)=>s+(Number(x.qty)||0)*(Number(x.weight)||0)*(Number(x.price)||0),0);
     const accessoryTotal = $('#includeAccessories').checked ? state.accessories.reduce((s,x)=>s+(Number(x.qty)||0)*(Number(x.price)||0),0) : 0;
     const subtotal = aluminumTotal + accessoryTotal;
-    const rawDiscount = Math.max(0, Number($('#discountValue').value)||0);
-    const accessoriesOnlyDiscount = $('#discountAccessoriesOnly')?.checked === true;
+    const alRaw = Math.max(0, Number($('#discountAlValue')?.value)||0);
+    const acRaw = Math.max(0, Number($('#discountAccValue')?.value)||0);
     const checkedAccessories = $('#includeAccessories').checked ? state.accessories.filter(x => x.discountEligible) : [];
     const selectedAccessoryBase = checkedAccessories.reduce((s,x)=>s+(Number(x.qty)||0)*(Number(x.price)||0),0);
-    // Nếu có phụ kiện được tick CK, chỉ chiết khấu các dòng đó; nếu chưa tick dòng nào thì giữ cách tính cũ.
-    const hasSelectedAccessoryDiscount = checkedAccessories.length > 0;
-    const discountBase = hasSelectedAccessoryDiscount ? selectedAccessoryBase : (accessoriesOnlyDiscount ? accessoryTotal : subtotal);
-    const discount = Math.min(discountBase, $('#discountType').value === 'percent' ? discountBase * Math.min(rawDiscount,100)/100 : rawDiscount);
+    const alDiscount = Math.min(aluminumTotal, $('#discountAlType').value === 'percent' ? aluminumTotal * Math.min(alRaw,100)/100 : alRaw);
+    const accessoryDiscountBase = checkedAccessories.length ? selectedAccessoryBase : accessoryTotal;
+    const acDiscount = Math.min(accessoryDiscountBase, $('#discountAccType').value === 'percent' ? accessoryDiscountBase * Math.min(acRaw,100)/100 : acRaw);
+    const discount = alDiscount + acDiscount;
     const taxable = Math.max(0, subtotal - discount);
     const vatEnabled = $('#vatEnabled')?.checked === true;
     const vat = vatEnabled ? taxable * (Number($('#vatRate').value)||0) / 100 : 0;
     const grand = taxable + vat;
     $('#aluminumSubtotal').textContent = money(aluminumTotal);
     $('#accessorySubtotal').textContent = money(accessoryTotal);
+    $('#discountAlAmount').textContent = money(alDiscount);
+    $('#discountAccAmount').textContent = money(acDiscount);
     $('#discountAmount').textContent = money(discount);
     $('#vatAmount').textContent = money(vat);
     $('#grandTotal').textContent = money(grand);
@@ -80,7 +82,7 @@
     $('#accessoryCount').textContent = $('#includeAccessories').checked ? state.accessories.length : 0;
     $('#lineCount').textContent = state.aluminum.length + ($('#includeAccessories').checked ? state.accessories.length : 0);
     $('#aluminumCount').textContent = state.aluminum.length;
-    return { aluminumTotal, accessoryTotal, subtotal, discount, vat, grand };
+    return { aluminumTotal, accessoryTotal, subtotal, discountAl:alDiscount, discountAccessories:acDiscount, discount, vat, grand };
   }
   function numberToVietnamese(n) {
     if (!n) return 'không đồng';
@@ -116,18 +118,35 @@
     $$('#appSidebar .nav-item').forEach(link=>link.addEventListener('click',closeMobileMenu));
     $('#productSearch').addEventListener('input',applyProductFilter);
     $('#includeAccessories').addEventListener('change',()=>{const on=$('#includeAccessories').checked;$('#accessoriesContent').classList.toggle('hidden',!on);$('#accessoryDisabled').classList.toggle('hidden',on);calculate()});
-    ['discountValue','discountType','vatRate'].forEach(id=>$('#'+id).addEventListener('input',calculate));
-    $('#vatEnabled')?.addEventListener('change',()=>{const enabled=$('#vatEnabled').checked;$('#vatRate').disabled=!enabled;$('#vatRate').closest('.total-line')?.classList.toggle('vat-disabled',!enabled);calculate()});
-    $('#accessoryRows').addEventListener('change',e=>{const cb=e.target.closest('[data-discount-item]');if(!cb)return;const item=state.accessories.find(x=>x.id===cb.dataset.discountItem);if(item)item.discountEligible=cb.checked;calculate()});
+    ['discountAlValue','discountAccValue','vatRate'].forEach(id=>$('#'+id).addEventListener('input',()=>{calculate();saveDraft()}));
+    ['discountAlType','discountAccType'].forEach(id=>$('#'+id).addEventListener('change',()=>{calculate();saveDraft()}));
+    $('#vatEnabled')?.addEventListener('change',()=>{const enabled=$('#vatEnabled').checked;$('#vatRate').disabled=!enabled;$('#vatRate').closest('.total-line')?.classList.toggle('vat-disabled',!enabled);calculate();saveDraft()});
+    $('#accessoryRows').addEventListener('change',e=>{const cb=e.target.closest('[data-discount-item]');if(!cb)return;const item=state.accessories.find(x=>x.id===cb.dataset.discountItem);if(item)item.discountEligible=cb.checked;calculate();saveDraft()});
     $('#discountAccessoriesOnly')?.addEventListener('change',calculate);
-    ['aluminumRows','accessoryRows'].forEach(id=>$('#'+id).addEventListener('input',e=>{if(e.target.matches('[data-field]'))calculate()}));
-    ['aluminumRows','accessoryRows'].forEach(id=>$('#'+id).addEventListener('click',e=>{const b=e.target.closest('[data-delete]');if(!b)return;const kind=id==='aluminumRows'?'aluminum':'accessories';state[kind]=state[kind].filter(x=>x.id!==b.dataset.delete);renderRows();calculate()}));
+    ['aluminumRows','accessoryRows'].forEach(id=>$('#'+id).addEventListener('input',e=>{if(e.target.matches('[data-field]')){calculate();saveDraft()}}));
+    ['aluminumRows','accessoryRows'].forEach(id=>$('#'+id).addEventListener('click',e=>{const b=e.target.closest('[data-delete]');if(!b)return;const kind=id==='aluminumRows'?'aluminum':'accessories';state[kind]=state[kind].filter(x=>x.id!==b.dataset.delete);renderRows();calculate();saveDraft()}));
     $('#clearAluminumBtn').addEventListener('click',()=>{if(!state.aluminum.length)return;state.aluminum=[];renderRows();calculate();notify('Đã xóa toàn bộ dòng nhôm thanh.')});
     $('#newQuoteBtn').addEventListener('click',newQuote);
+    // Tự lưu bản nháp mỗi khi thay đổi trường nhập liệu; reload sẽ khôi phục.
+    document.addEventListener('input',e=>{if(e.target.matches('input,textarea,select'))saveDraft()});
+    document.addEventListener('change',e=>{if(e.target.matches('input,textarea,select'))saveDraft()});
     $('#saveQuoteBtn').addEventListener('click',saveQuote);
     $('#exportExcelBtn').addEventListener('click',exportQuoteExcel);
     $('#printQuoteBtn').addEventListener('click',()=>{const payload=buildQuotePayload();try{persistQuote(payload);localStorage.setItem('haihahung_quote_print',JSON.stringify(payload));window.open('print.html','_blank')}catch(err){notify('Không thể lưu/mở bản in. Hãy kiểm tra dung lượng lưu trữ hoặc cho phép cửa sổ bật lên.')}});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePicker();closeCustomerPicker();}if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveQuote();}});
+  }
+  // Mã khách hàng có thể rỗng hoặc trùng nhau trong customers.json; khi đó dùng chỉ số bản ghi làm khóa ổn định.
+  function customerKey(c, i) {
+    const id = String(c?.id ?? c?.MaKhachHang ?? '').trim();
+    return id ? id : String(i);
+  }
+  function customerField(c, field) {
+    const aliases = { name: ['name', 'TenKhachHang'], phone: ['phone', 'SoDienThoai'], contact: ['contact', 'NguoiLienHe', 'LienHe'], address: ['address', 'DiaChi'], note: ['note', 'Ghichu'] };
+    for (const key of (aliases[field] || [field])) {
+      const value = c?.[key];
+      if (value !== undefined && value !== null && String(value).trim() !== '') return value;
+    }
+    return '';
   }
   async function loadCustomers() {
     try {
@@ -139,7 +158,7 @@
       select.innerHTML='<option value="">— Chọn khách hàng trong danh mục —</option><option value="__new__">＋ Nhập khách hàng mới</option>';
       state.customers.forEach((c,i)=>{
         const opt=document.createElement('option');
-        opt.value=String(c.id??i); opt.textContent=c.name||`Khách hàng ${i+1}`;
+        opt.value=String(i); opt.textContent=customerField(c,'name')||`Khách hàng ${i+1}`;
         select.insertBefore(opt,select.querySelector('option[value="__new__"]'));
       });
       $('#customerDataStatus').textContent=`Đã tải ${state.customers.length} khách hàng từ customers.json`;
@@ -159,7 +178,7 @@
   function closeCustomerPicker(){ $('#customerModal').classList.add('hidden'); }
   function renderCustomerOptions() {
     const q=($('#customerSearch')?.value||'').trim().toLocaleLowerCase('vi');
-    const filtered=state.customers.map((c,i)=>({c,key:String(c.id??i)})).filter(({c})=>`${c.id||''} ${c.name||''} ${c.phone||''} ${c.contact||''} ${c.address||''}`.toLocaleLowerCase('vi').includes(q));
+    const filtered=state.customers.map((c,i)=>({c,key:String(i)})).filter(({c})=>`${customerField(c,'id')} ${customerField(c,'name')} ${customerField(c,'phone')} ${customerField(c,'contact')} ${customerField(c,'address')}`.toLocaleLowerCase('vi').includes(q));
     $('#customerModalList').innerHTML=filtered.length?filtered.map(({c,key})=>`<button type="button" class="catalog-item customer-catalog-item" data-customer-key="${escapeHtml(key)}"><span class="catalog-symbol">♙</span><span class="catalog-info"><strong>${escapeHtml(c.name||'Khách hàng chưa đặt tên')}</strong><small>${escapeHtml([c.id,c.phone,c.contact,c.address].filter(Boolean).join(' · ')||'Chưa có thông tin bổ sung')}</small></span><span class="catalog-price">Chọn ↗</span></button>`).join(''):'<div class="modal-empty">Không tìm thấy khách hàng phù hợp. Hãy thử từ khóa khác hoặc nhập khách hàng mới.</div>';
     $('#customerModalStatus').textContent=`Hiển thị ${filtered.length}/${state.customers.length} khách hàng`;
   }
@@ -170,11 +189,13 @@
       $('#selectedCustomerLabel').textContent='＋ Nhập khách hàng mới';
       closeCustomerPicker(); $('#customerName').focus(); return;
     }
-    const c=state.customers.find((item,i)=>String(item.id??i)===String(key));
-    if(!c)return;
-    $('#customerSelect').value=String(c.id??state.customers.indexOf(c));
-    $('#customerName').value=c.name||''; $('#customerPhone').value=c.phone||''; $('#customerContact').value=c.contact||''; $('#customerAddress').value=c.address||'';
-    $('#selectedCustomerLabel').textContent=c.name||'Khách hàng đã chọn';
+    const index=Number(key);
+    if(!Number.isInteger(index)||index<0||index>=state.customers.length)return;
+    const c=state.customers[index];
+    // Dùng chỉ số bản ghi làm khóa duy nhất, tránh trùng/rỗng mã khách hàng.
+    $('#customerSelect').value=String(index);
+    $('#customerName').value=customerField(c,'name'); $('#customerPhone').value=customerField(c,'phone'); $('#customerContact').value=customerField(c,'contact'); $('#customerAddress').value=customerField(c,'address');
+    $('#selectedCustomerLabel').textContent=customerField(c,'name')||'Khách hàng đã chọn';
     closeCustomerPicker(); notify('Đã điền thông tin khách hàng.');
   }
   function selectCustomer() {
@@ -352,12 +373,12 @@
   }
   function newQuote() {
     if(!confirm('Tạo phiếu báo giá mới? Các dòng hiện tại sẽ được làm mới.'))return;
-    state.aluminum=[];state.accessories=[];renderRows();$('#customerSelect').value='';$('#selectedCustomerLabel').textContent='— Chọn khách hàng trong danh mục —';$('#customerName').value='';$('#customerPhone').value='';$('#customerContact').value='';$('#customerAddress').value='';$('#quoteNotes').value='';$('#discountValue').value='0';$('#discountType').value='percent';if($('#discountAccessoriesOnly'))$('#discountAccessoriesOnly').checked=false;$('#vatRate').value='8';if($('#vatEnabled')){$('#vatEnabled').checked=false;$('#vatRate').disabled=true;}$('#includeAccessories').checked=true;$('#includeAccessories').dispatchEvent(new Event('change'));
-    const seq=String(Date.now()).slice(-3);$('#quoteCode').textContent=`BG-${String(today.getFullYear()).slice(-2)}${pad(today.getMonth()+1)}${pad(today.getDate())}-${seq}`;calculate();notify('Đã tạo phiếu báo giá mới.');
+    state.aluminum=[];state.accessories=[];renderRows();$('#customerSelect').value='';$('#selectedCustomerLabel').textContent='— Chọn khách hàng trong danh mục —';$('#customerName').value='';$('#customerPhone').value='';$('#customerContact').value='';$('#customerAddress').value='';$('#quoteNotes').value='';$('#discountAlValue').value='0';$('#discountAccValue').value='0';$('#discountAlType').value='percent';$('#discountAccType').value='percent';$('#vatRate').value='8';if($('#vatEnabled')){$('#vatEnabled').checked=false;$('#vatRate').disabled=true;}$('#includeAccessories').checked=true;$('#includeAccessories').dispatchEvent(new Event('change'));
+    const seq=String(Date.now()).slice(-3);$('#quoteCode').textContent=`BG-${String(today.getFullYear()).slice(-2)}${pad(today.getMonth()+1)}${pad(today.getDate())}-${seq}`;calculate();saveDraft();notify('Đã tạo phiếu báo giá mới.');
   }
   function buildQuotePayload() {
     const sums=calculate();
-    return {company:{name:'CÔNG TY TNHH KINH DOANH TỔNG HỢP HẢI HÀ HƯNG'},quote:{code:$('#quoteCode').textContent,date:fmtDateISO(new Date()),validityDays:Number($('#validity').value)||15,salesperson:$('#salesperson').value},customer:{name:$('#customerName').value.trim(),phone:$('#customerPhone').value,contact:$('#customerContact').value,address:$('#customerAddress').value},aluminum:state.aluminum.map(x=>({...x})),accessoriesIncluded:$('#includeAccessories').checked,accessories:state.accessories.map(x=>({...x})),discount:{type:$('#discountType').value,value:Number($('#discountValue').value)||0,amount:sums.discount,accessoriesOnly:$('#discountAccessoriesOnly')?.checked===true,selectedAccessoryIds:state.accessories.filter(x=>x.discountEligible).map(x=>x.id)},vatEnabled:$('#vatEnabled')?.checked===true,vatRate:$('#vatEnabled')?.checked?(Number($('#vatRate').value)||0):0,totals:sums,notes:$('#quoteNotes').value,deliveryTime:$('#deliveryTime').value,paymentTerms:$('#paymentTerms').value,savedAt:new Date().toISOString()};
+    return {company:{name:'CÔNG TY TNHH KINH DOANH TỔNG HỢP HẢI HÀ HƯNG'},quote:{code:$('#quoteCode').textContent,date:fmtDateISO(new Date()),validityDays:Number($('#validity').value)||15,salesperson:$('#salesperson').value},customer:{name:$('#customerName').value.trim(),phone:$('#customerPhone').value,contact:$('#customerContact').value,address:$('#customerAddress').value},aluminum:state.aluminum.map(x=>({...x})),accessoriesIncluded:$('#includeAccessories').checked,accessories:state.accessories.map(x=>({...x})),discount:{aluminum:{type:$('#discountAlType').value,value:Number($('#discountAlValue').value)||0,amount:sums.discountAl},accessories:{type:$('#discountAccType').value,value:Number($('#discountAccValue').value)||0,amount:sums.discountAccessories},type:'split',value:0,amount:sums.discount,selectedAccessoryIds:state.accessories.filter(x=>x.discountEligible).map(x=>x.id)},vatEnabled:$('#vatEnabled')?.checked===true,vatRate:$('#vatEnabled')?.checked?(Number($('#vatRate').value)||0):0,totals:sums,notes:$('#quoteNotes').value,deliveryTime:$('#deliveryTime').value,paymentTerms:$('#paymentTerms').value,savedAt:new Date().toISOString()};
   }
 
   // Xuất workbook Excel XML (SpreadsheetML 2003): không phụ thuộc CDN/thư viện ngoài,
@@ -417,6 +438,30 @@
     }
   }
 
+  const DRAFT_KEY='haihahung_quote_draft_v1';
+  function saveDraft(){try{const payload=buildQuotePayload();localStorage.setItem(DRAFT_KEY,JSON.stringify(payload));}catch(e){console.warn('Không thể lưu bản nháp',e)}}
+  function applyQuotePayload(p){
+    if(!p)return;
+    const q=p.quote||{},c=p.customer||{},d=p.discount||{};
+    $('#quoteCode').textContent=q.code||$('#quoteCode').textContent;
+    $('#customerName').value=c.name||'';$('#customerPhone').value=c.phone||'';$('#customerContact').value=c.contact||'';$('#customerAddress').value=c.address||'';
+    $('#salesperson').value=q.salesperson||$('#salesperson').value;$('#validity').value=String(q.validityDays||15);
+    $('#quoteNotes').value=p.notes??$('#quoteNotes').value;$('#deliveryTime').value=p.deliveryTime||'Theo thỏa thuận';$('#paymentTerms').value=p.paymentTerms||'Theo thỏa thuận';
+    $('#discountAlValue').value=String(d.aluminum?.value??(d.type==='split'?0:d.value??0));$('#discountAlType').value=d.aluminum?.type||(d.type==='split'?'percent':d.type||'percent');
+    $('#discountAccValue').value=String(d.accessories?.value??0);$('#discountAccType').value=d.accessories?.type||'percent';
+    $('#vatEnabled').checked=p.vatEnabled===true;$('#vatRate').value=String(p.vatRate??8);$('#vatRate').disabled=!$('#vatEnabled').checked;
+    $('#includeAccessories').checked=p.accessoriesIncluded!==false;
+    state.aluminum=(p.aluminum||[]).map(x=>({...x,id:x.id||uid()}));state.accessories=(p.accessories||[]).map(x=>({...x,id:x.id||uid()}));
+    renderRows();$('#includeAccessories').dispatchEvent(new Event('change'));calculate();
+  }
+  function restoreDraft(){
+    try{const params=new URLSearchParams(location.search);const code=params.get('edit');let payload=null;
+      if(code){const history=JSON.parse(localStorage.getItem('haihahung_quote_history')||'[]');payload=history.find(x=>x.quote?.code===code);if(payload){localStorage.setItem(DRAFT_KEY,JSON.stringify(payload));}}
+      if(!payload)payload=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
+      if(payload){applyQuotePayload(payload);if(code)notify('Đã mở báo giá đã lưu: '+code);}
+    }catch(e){console.warn('Không thể khôi phục bản nháp',e)}
+  }
+
   function persistQuote(payload) {
     const key='haihahung_quote_history';
     const history=JSON.parse(localStorage.getItem(key)||'[]');
@@ -428,7 +473,7 @@
   function saveQuote() {
     const payload=buildQuotePayload();
     if(!payload.customer.name){$('#customerName').focus();notify('Vui lòng nhập tên khách hàng trước khi lưu.');return;}
-    try { persistQuote(payload); const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${payload.quote.code}.json`;a.click();URL.revokeObjectURL(a.href);notify('Đã lưu báo giá vào Lịch sử báo giá và xuất tệp JSON.'); }
+    try { persistQuote(payload); localStorage.setItem(DRAFT_KEY,JSON.stringify(payload)); const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${payload.quote.code}.json`;a.click();URL.revokeObjectURL(a.href);notify('Đã lưu báo giá vào Lịch sử báo giá và xuất tệp JSON.'); }
     catch(err){notify('Không thể lưu báo giá. Hãy kiểm tra dung lượng lưu trữ trình duyệt.');}
   }
   function saveQuoteToDrive() {

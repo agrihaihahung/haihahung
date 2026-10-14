@@ -62,8 +62,19 @@
     const taxable=Math.max(0,subtotal-discount);
     const vat=p.vatEnabled===false?0:(num(totals.vat) || taxable*vatRate/100);
     const grand=num(totals.grand) || taxable+vat;
-    set('subtotal',money(subtotal));set('discount',money(discount));set('vatRate',vatRate);
-    const discountLabel=$('discountLabel');if(discountLabel)discountLabel.textContent=p.discount?.accessoriesOnly?'Chiết khấu phụ kiện':'Chiết khấu';
+    const discountAl=num(totals.discountAl ?? p.discount?.aluminum?.amount);
+    const discountAcc=num(totals.discountAccessories ?? p.discount?.accessories?.amount);
+    // Chỉ hiển thị từng dòng chiết khấu khi cả giá trị nhập và số tiền giảm đều khác 0.
+    // Hỗ trợ payload mới (chiết khấu tách riêng) và payload cũ.
+    const alDiscountInput = p.discount?.aluminum?.value ?? p.discount?.aluminum?.percent ?? p.discount?.aluminum?.rate;
+    const accDiscountInput = p.discount?.accessories?.value ?? p.discount?.accessories?.percent ?? p.discount?.accessories?.rate;
+    const alHasValue = alDiscountInput !== undefined ? num(alDiscountInput) !== 0 : discountAl !== 0;
+    const accHasValue = accDiscountInput !== undefined ? num(accDiscountInput) !== 0 : discountAcc !== 0;
+    // Dùng display:none trực tiếp vì CSS .total-row có thể ghi đè thuộc tính hidden mặc định.
+    const alRow=$('discountAlRow'); if(alRow) { const showAl = alHasValue && discountAl !== 0; alRow.hidden = !showAl; alRow.style.display = showAl ? 'flex' : 'none'; }
+    const accRow=$('discountAccRow'); if(accRow) { const showAcc = accHasValue && discountAcc !== 0; accRow.hidden = !showAcc; accRow.style.display = showAcc ? 'flex' : 'none'; }
+    set('subtotal',money(subtotal));set('discountAl',money(discountAl));set('discountAcc',money(discountAcc));set('vatRate',vatRate);
+    const vatRow=$('vatRow');if(vatRow)vatRow.style.display=p.vatEnabled===true?'':'none';
     set('vatAmount',money(vat));set('grandTotal',money(grand));set('amountWords',numberWords(Math.round(grand)));
   }
   $('printBtn').addEventListener('click',()=>window.print());
