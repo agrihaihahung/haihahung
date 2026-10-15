@@ -1416,6 +1416,14 @@
     "price": 35000
   },
   {
+    "system": "Nhua",
+    "code": "GZN2",
+    "name": "Thanh nhựa đa điểm 3m",
+    "unit": "thanh",
+    "grp": "",
+    "price": 35000
+  },
+  {
     "system": "OPK",
     "code": "CN122669B",
     "name": "Bộ phụ kiện dùng cho cánh đơn\nA01-G Single door kit CN122669B",
@@ -2051,41 +2059,41 @@
     "system": "VT55s",
     "code": "GZ56",
     "name": "zoang lông 5*6 (250m)",
-    "unit": "cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 295000
+    "price": 1500
   },
   {
     "system": "VT55s",
     "code": "GZ36-05",
     "name": "Zoang lông 3,5 x 6 - 1 cuộn 250m",
-    "unit": "Cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 305000
+    "price": 1500
   },
   {
     "system": "VT55s",
     "code": "gz75",
     "name": "zoang lông 7*5 ( 250m)",
-    "unit": "cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 295000
+    "price": 1500
   },
   {
     "system": "VT55s",
     "code": "gz96-01",
     "name": "Zoang lông 9*6 ( cửa trượt,slim138 ) - 250m",
-    "unit": "cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 315000
+    "price": 1500
   },
   {
     "system": "VT55s",
     "code": "GZCS01",
     "name": "zoang cánh cửa sổ trượt EPDM nhập khẩu (1 cuộn 10kg-EPF-577-3.2)",
-    "unit": "cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 995000
+    "price": 3000
   },
   {
     "system": "VT55s",
@@ -2123,6 +2131,14 @@
     "system": "VT55s",
     "code": "GZN",
     "name": "thanh nhựa ốp dài 4.8m\n (nhựa nguyên sinh nhập khẩu - SP-113-16.6)",
+    "unit": "thanh",
+    "grp": "",
+    "price": 35000
+  },
+  {
+    "system": "VT55s",
+    "code": "GZN2",
+    "name": "Thanh nhựa đa điểm 3m",
     "unit": "thanh",
     "grp": "",
     "price": 35000
@@ -2211,9 +2227,9 @@
     "system": "VT55s",
     "code": "EFE-37.4",
     "name": "Zoang móc cánh cửa trượt kenwin / anode - 1 cuộn 3kg",
-    "unit": "cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 490000
+    "price": 4500
   },
   {
     "system": "VT55s",
@@ -2283,33 +2299,33 @@
     "system": "VT60",
     "code": "GZDS01",
     "name": "Zoang đệm sập EPDM nhập khẩu ( 1 cuộn 250m)",
-    "unit": "cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 450000
+    "price": 2500
   },
   {
     "system": "VT60",
     "code": "GZKQ04A",
     "name": "Zoang khung nhập khẩu EFK-76-3.8 (380m/cuộn)",
-    "unit": "cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 1680000
+    "price": 5000
   },
   {
     "system": "VT60",
     "code": "EPJ-103-16.2",
     "name": "zoang che rãnh phụ kiện C (142m)",
-    "unit": "cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 995000
+    "price": 7500
   },
   {
     "system": "VT60",
     "code": "EFK-121-3.5",
     "name": "Zoang khung bao viền ngoài kogen - 1 cuộn 3 kg",
-    "unit": "cuộn",
+    "unit": "m",
     "grp": "",
-    "price": 495000
+    "price": 5000
   },
   {
     "system": "VT60",
@@ -2394,7 +2410,7 @@
   {
     "system": "KVC_55S",
     "code": "KVC4.0A",
-    "name": "Ke vĩnh cửu hệ 60 - khung cửa đi quay  (31x40) - 2 vít",
+    "name": "Ke vĩnh cửu Cánh cửa đi mở quay Kenwin 55s (31x40) - 2 vít",
     "unit": "Chiếc",
     "grp": "",
     "price": 13700
@@ -2410,7 +2426,7 @@
   {
     "system": "KVC_55S",
     "code": "KVC4.05",
-    "name": "Ke vĩnh cửu hệ 60 - cánh cửa sổ quay (25x40.5) - 1 vít lệch",
+    "name": "Ke vĩnh cửu Cánh cửa sổ mở quay Kenwin 55s (25x40.5) - 1 vít lệch",
     "unit": "Chiếc",
     "grp": "",
     "price": 9600
@@ -2506,7 +2522,7 @@
   {
     "system": "KVC_T6",
     "code": "KVC39N",
-    "name": "Ke vĩnh cửu Cánh cửa đi mở quay 55 (39 x 40) - 2 vít anode bản Plus",
+    "name": "Ke vĩnh cửu Cánh cửa đi mở quay 55 (39 x 40) - 2 vít,bản thường và  anode bản Plus",
     "unit": "Chiếc",
     "grp": "",
     "price": 15500
@@ -2514,18 +2530,10 @@
   {
     "system": "KVC_T6",
     "code": "KVC42K",
-    "name": "Ke vĩnh cửu Khung cửa đi mở quay Kenwin 55s (25x42) - 2 vít",
+    "name": "Ke vĩnh cửu Khung bao cửa mở quay 55 anode (25x42) - 2 vít",
     "unit": "Chiếc",
     "grp": "",
     "price": 11200
-  },
-  {
-    "system": "KVC_T6",
-    "code": "KVC39N",
-    "name": "Ke vĩnh cửu Cánh cửa đi mở quay 55 (39 x 40) - 2 vít anode bản Plus",
-    "unit": "Chiếc",
-    "grp": "",
-    "price": 15500
   },
   {
     "system": "KVC_T6",
@@ -2538,7 +2546,7 @@
   {
     "system": "KVC_T6",
     "code": "KVC27",
-    "name": "Ke vĩnh cửu Cánh cửa trượt Kenwin 55s (14x27) - 1 vít cân",
+    "name": "Ke vĩnh cửu Khung cửa trượt hệ 93 anode (14x27) - 1 vít cân",
     "unit": "Chiếc",
     "grp": "",
     "price": 5900
